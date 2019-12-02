@@ -16,6 +16,9 @@ function initUnit(species, parent)
 	else
 		u.genome = initGenome()
 	end
+	
+	tallyStatsFromGenome(u)
+	
 	u.color = unitColorByGenome(u.genome)
 	
 	u.maxLevel = 36
@@ -111,8 +114,25 @@ function generateNameFromParentName(pn)
 	return n
 end
 
-function tallyStatsFromGenome(g)
+function tallyStatsFromGenome(u)
+	local previous = u.genome[54]
+	local incrementor = 1
 	
+	for i,v in ipairs(u.genome) do
+		if v == previous then
+			if v == "R" then
+				u.stats.int = u.stats.int + incrementor
+			elseif v == "G" then
+				u.stats.str = u.stats.str + incrementor
+			elseif v == "B" then
+				u.stats.agl = u.stats.agl + incrementor
+			end
+		else
+			u.stats.maxHP = u.stats.maxHP + incrementor
+		end
+		
+		previous = v
+	end
 end
 
 --------------------------------------------------------------------------------------------------
@@ -138,7 +158,7 @@ function drawUnitSummary(u, xOffset, yOffset)
 	love.graphics.print(u.stats.maxHP.."\n"..u.stats.int.."\n"..u.stats.str.."\n"..u.stats.agl, xOffset + 240, yOffset)
 	
 	--draw genome
-	-- drawGenome(u.genome, xOffset + 200, yOffset - 50)
+	drawGenome(u.genome, xOffset + 300, yOffset - 50)
 end
 
 function drawUnitIcon(u, xOffset, yOffset)

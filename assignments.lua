@@ -86,8 +86,8 @@ function assignmentsKeyPressed(key)
 	if activities[key] then
 		table.remove(unassigned, 1)
 		assignUnitTo(unassigned[1], activities[key])
-	else
-		print(key.." is not an activity we provide")
+	-- else
+		-- print(key.." is not an activity we provide")
 	end
 	
 	--TODO submenus for locations, etc
