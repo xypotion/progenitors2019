@@ -1,8 +1,4 @@
-function assignmentsStart()
-	ua = {} --"unit assignments"
-	
-	ui = 1--"unit index"
-	
+function assignmentsStart()	
 	--index unassigned units
 	unassigned = {}
 	local i = 1
@@ -21,6 +17,13 @@ function assignmentsStart()
 		f = "Fast"
 	}
 	-- tablePrint(activities)
+
+	--initialize unit assignments table
+	unitAssignments = {}
+	for k, a in pairs(activities) do
+		unitAssignments[a] = {}
+		--TODO also add valid rooms (with capacities) and world areas (? or those can be added later as units are assigned)
+	end
 	
 	--find all destinations
 	allDestinations = {}
@@ -37,14 +40,15 @@ function assignmentsUpdate(dt)
 end
 
 function assignmentsDraw()
-	drawUnit(roster[ui], 100, 100)
+	--draw current unit summary
+	drawUnit(roster[unassigned[1]], 100, 100)
 	
 	white()
 	
 	--draw unassigned unit icons
-	love.graphics.print("Unassigned", 500, 50)
+	love.graphics.print("Unassigned", 600, 48)
 	for k, index in ipairs(unassigned) do
-		drawUnitIcon(roster[index], 450 + ((k - 1) % 10 + 1) * 32, 75 + math.floor((k - 1) / 10 + 1) * 32)
+		drawUnitIcon(roster[index], 600 + ((k - 1) % 16 + 1) * 32, 32 + math.floor((k - 1) / 16 + 1) * 32)
 	end
 	
 	white()
@@ -57,7 +61,7 @@ function assignmentsDraw()
 		i = i + 1
 	end
 	
-	--debug. draw all Train destinations
+	--debug... draw all Train destinations
 	-- i = 0
 	-- for k,d in pairs(allDestinations.Train) do
 	-- 	love.graphics.print(k, 300, 200 + i * 30)
@@ -66,10 +70,27 @@ function assignmentsDraw()
 	-- end
 end
 
+function assignmentsKeyPressed(key)
+	--TODO enable capital letters
+
+	--was this a valid activity?
+	if activities[key] then
+		table.remove(unassigned, 1)
+		assignUnitTo(unassigned[1], activities[key])
+	else
+		print(key.." is not an activity we provide")
+	end
+	
+	--TODO submenus for locations, etc
+	
+end
 
 
 
 
+function assignUnitTo(cui, a)
+	table.insert(unitAssignments[a], cui)
+end
 
 function findDestinations(a)
 	d = {}

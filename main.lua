@@ -19,7 +19,7 @@ function love.load()
 	roster = {}
 	roster[1] = initUnit("Vulture")
 	
-	for i = 2, 150 do 
+	for i = 2, 256 do 
 		roster[i] = initUnit("Vulture", roster[i-1])
 	end
 	-- tablePrint(roster)
@@ -65,6 +65,8 @@ function love.keypressed(key)
 	if key == "escape" then
 		love.event.quit()
 	end
+	
+	_G[phase.."KeyPressed"](key)
 end
 
 
