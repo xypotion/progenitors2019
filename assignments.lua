@@ -3,6 +3,16 @@ function assignmentsStart()
 	
 	ui = 1--"unit index"
 	
+	--index unassigned units
+	unassigned = {}
+	local i = 1
+	for k,v in ipairs(roster) do
+	  unassigned[i] = k
+	  i = i + 1
+	end
+	-- tablePrint(unassigned)
+	
+	--activity menu 
 	activities = {
 		t = "Train",
 		g = "Gather",
@@ -10,7 +20,7 @@ function assignmentsStart()
 		i = "Investigate",
 		f = "Fast"
 	}
-	tablePrint(activities)
+	-- tablePrint(activities)
 	
 	--find all destinations
 	allDestinations = {}
@@ -18,7 +28,9 @@ function assignmentsStart()
 		allDestinations[a] = findDestinations(a)
 	end
 	
-	tablePrint(allDestinations)
+	-- tablePrint(allDestinations)
+	
+	-- tablePrint(roster[1])
 end
 
 function assignmentsUpdate(dt)
@@ -29,21 +41,29 @@ function assignmentsDraw()
 	
 	white()
 	
+	--draw unassigned unit icons
+	love.graphics.print("Unassigned", 500, 50)
+	for k, index in ipairs(unassigned) do
+		drawUnitIcon(roster[index], 450 + ((k - 1) % 10 + 1) * 32, 75 + math.floor((k - 1) / 10 + 1) * 32)
+	end
+	
+	white()
+	
 	--draw activities menu
 	local i = 0
-	for k,a in pairs(activities) do
+	for k, a in pairs(activities) do
 		love.graphics.print(k, 100, 200 + i * 30)
 		love.graphics.print(a, 130, 200 + i * 30)
 		i = i + 1
 	end
 	
 	--debug. draw all Train destinations
-	i = 0
-	for k,d in pairs(allDestinations.Train) do
-		love.graphics.print(k, 300, 200 + i * 30)
-		love.graphics.print(d.uniqueName, 350, 200 + i * 30)
-		i = i + 1
-	end
+	-- i = 0
+	-- for k,d in pairs(allDestinations.Train) do
+	-- 	love.graphics.print(k, 300, 200 + i * 30)
+	-- 	love.graphics.print(d.uniqueName, 350, 200 + i * 30)
+	-- 	i = i + 1
+	-- end
 end
 
 

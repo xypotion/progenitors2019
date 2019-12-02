@@ -4,18 +4,26 @@ require "assignments"
 
 function love.load()
 	math.randomseed(os.time())
+	love.window.setMode(1200, 720)
 	
 	init13colors()
 	
 	love.graphics.setNewFont(20)
 	
-	roster = {}
-	roster[1] = initUnit("foo")
-	-- tablePrint(roster)
+	--load images
+	images = {
+		Vulture = love.graphics.newImage("Vulture.png")
+	}
+	-- tablePrint(images)
 	
-	for i = 2, 100 do 
+	roster = {}
+	roster[1] = initUnit("Vulture")
+	
+	for i = 2, 150 do 
 		roster[i] = initUnit("Vulture", roster[i-1])
 	end
+	-- tablePrint(roster)
+	
 	
 	-- roster[1] = initUnit("foo")
 	-- print(roster[1].name)
@@ -65,22 +73,20 @@ end
 
 function initUnit(species, parent)
 	local u = {}
+	u.species = species
+	u.stats = deepClone(speciesData[species].stats)
+	
 	if parent then
-		-- tablePrint(parent)
 		u.name = generateName(parent.name)
 	else
 		u.name = generateName()
 	end
 	
-	u.stats = deepClone(speciesData[species].stats)
-
 	if parent then
-		-- tablePrint(parent)
 		u.genome = initGenome(parent.genome)
 	else
 		u.genome = initGenome()
 	end
-	
 	u.color = unitColorByGenome(u.genome)
 	
 	return u
@@ -124,11 +130,20 @@ piOver3 = math.pi / 3
 
 function drawUnit(u, xOffset, yOffset)
 	--print name
-	love.graphics.setColor(u.color)
 	love.graphics.print(u.name, xOffset, yOffset)
+	
+	--draw image
+	love.graphics.setColor(u.color)
+	love.graphics.draw(images[u.species], xOffset, yOffset + 20, 0, 0.5, 0.5)
+	-- love.graphics.draw(images[u.species], xOffset + 100, yOffset + 20, 0, 0.25, 0.25)
 	
 	--draw genome
 	drawGenome(u.genome, xOffset + 200, yOffset - 50)
+end
+
+function drawUnitIcon(u, xOffset, yOffset)
+	love.graphics.setColor(u.color)
+	love.graphics.draw(images[u.species], xOffset, yOffset, 0, 0.25, 0.25)
 end
 
 function drawGenome(g, xOffset, yOffset)
@@ -160,7 +175,7 @@ function unitColorByGenome(g)
 	
 	-- tablePrint(counts)
 	
-	local min, mult = -1, 3
+	local min, mult = -0.75, 3
 	c[1] = min + mult * counts.R / (counts.G + counts.B)
 	c[2] = min + mult * counts.G / (counts.R + counts.B)
 	c[3] = min + mult * counts.B / (counts.R + counts.G)
