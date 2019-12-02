@@ -7,6 +7,7 @@ function assignmentsStart()
 	  i = i + 1
 	end
 	-- tablePrint(unassigned)
+	--TODO you want to let player skip forward and backward through list, so re-implement "currentUnitIndex", lol
 	
 	--activity menu 
 	activities = {
@@ -14,7 +15,15 @@ function assignmentsStart()
 		g = "Gather",
 		d = "Dig",
 		i = "Investigate",
-		f = "Fast"
+		f = "Fast",
+		m = "Mate",
+		h = "Heal",
+		w = "Welcome", --at the gate
+		-- x = "Recuperate" --should happen automatically
+		p = "Preserve", --food
+		e = "Enlarge", --rooms
+		b = "Bulk", --? i.e. bulk up (eat a lot more food, for growth)
+		s = "SORT"
 	}
 	-- tablePrint(activities)
 
@@ -41,7 +50,7 @@ end
 
 function assignmentsDraw()
 	--draw current unit summary
-	drawUnit(roster[unassigned[1]], 100, 100)
+	drawUnitSummary(roster[unassigned[1]], 50, 50)
 	
 	white()
 	
