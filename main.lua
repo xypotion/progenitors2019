@@ -28,6 +28,10 @@ function love.load()
 	end
 	-- tablePrint(roster)
 	
+	-- roster[3] = deepClone(roster[1])--debug
+	-- roster[5] = deepClone(roster[1])--debug
+	
+	findHighestStatsAmongLivingUnits()
 	
 	-- roster[1] = initUnit("foo")
 	-- print(roster[1].name)
@@ -73,6 +77,68 @@ function love.keypressed(key)
 	_G[phase.."KeyPressed"](key)
 end
 
+
+
+
+
+
+function findHighestStatsAmongLivingUnits()
+	--looping multiple times is inefficient, but the most elegant way to do this is currently beyond me!
+	local statNames = {"maxHP", "int", "str", "agl"}
+	local bigWinners = {}
+	
+	--find the big winners
+	for i,sn in pairs(statNames) do
+		local winners = {0, 0, 0}
+		
+		for j,unit in pairs(roster) do
+			local stat = unit.stats[sn]
+			
+			if stat > winners[3] then
+				winners[3] = stat
+			end
+			
+			if stat > winners[2] then
+				local swap = winners[2]
+				winners[2] = stat
+				winners[3] = swap
+			end			
+			
+			if stat > winners[1] then
+				local swap = winners[1]
+				winners[1] = stat
+				winners[2] = swap
+			end
+		end
+		
+		bigWinners[sn] = deepClone(winners)
+	end
+	
+	tablePrint(bigWinners)
+	
+	--then find, like, the big winners
+	for i,unit in pairs(roster) do
+		unit.medals = {}
+		local gotMedal = false --debug
+		
+		for j,sn in pairs(statNames) do
+			for medalNumber = 1, 3 do
+				if unit.stats[sn] == bigWinners[sn][medalNumber] then
+					unit.medals[sn] = medalNumber
+					gotMedal = true --debug
+				end
+			end
+		end
+		
+		--debug
+		if gotMedal then
+			print("\n"..i.." - "..unit.name.." Lv. "..unit.level)
+			tablePrint(unit.stats)
+			print("\nmedals:")
+			tablePrint(unit.medals)
+		end
+	end
+end
 
 
 

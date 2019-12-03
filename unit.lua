@@ -3,9 +3,14 @@ require "speciesData"
 function initUnit(species, parent)
 	local u = {}
 	u.species = species
-	u.stats = deepClone(speciesData[species].stats)
-	for k,v in pairs(u.stats) do
-		u.stats[k] = u.stats[k] * speciesBaseStatMultiplier
+
+	
+	u.maxLevel = math.random(36)
+	u.level = math.random(u.maxLevel)
+	
+	u.stats = {}--deepClone(speciesData[species].stats)
+	for k,v in pairs(speciesData[species].stats) do
+		u.stats[k] = v * speciesBaseStatMultiplier * u.level
 	end
 	
 	if parent then
@@ -23,9 +28,6 @@ function initUnit(species, parent)
 	tallyStatsFromGenome(u)
 	
 	u.color = unitColorByGenome(u.genome)
-	
-	u.maxLevel = 36
-	u.level = 35
 	
 	return u
 end
@@ -119,8 +121,9 @@ end
 
 function tallyStatsFromGenome(u)
 	local previous = u.genome[54]
-	local incrementor = 1
+	local incrementor = 1/3 * u.level
 	
+	--tally them up
 	for i,v in ipairs(u.genome) do
 		if v == previous then
 			if v == "R" then
@@ -135,6 +138,11 @@ function tallyStatsFromGenome(u)
 		end
 		
 		previous = v
+	end
+	
+	--and round them off
+	for k,v in pairs(u.stats) do
+		u.stats[k] = round(v)
 	end
 end
 

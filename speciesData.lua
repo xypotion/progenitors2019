@@ -1,4 +1,4 @@
-speciesBaseStatMultiplier = 9
+speciesBaseStatMultiplier = 1
 randomSpeciesThreshold = 7/8 --total - 1 over total
 -- 3-(1/3) = (3-1)/3. weird.
 
