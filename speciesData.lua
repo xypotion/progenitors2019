@@ -22,10 +22,14 @@ speciesData = {
 	},
 	Vulture = {
 		stats = {
-			maxHP = 4,
-			int = 4,
-			str = 1,
-			agl = 1
+			-- maxHP = 4,
+			-- int = 4,
+			-- str = 1,
+			-- agl = 1
+			maxHP = 3,
+			int = 2,
+			str = 2,
+			agl = 3
 		}
 	},
 	Ant = {

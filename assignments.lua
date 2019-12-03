@@ -1,12 +1,12 @@
 function assignmentsStart()	
 	--index unassigned units
-	unassigned = {}
+	unassignedIDs = {}
 	local i = 1
 	for k,v in ipairs(roster) do
-	  unassigned[i] = k
+	  unassignedIDs[i] = k
 	  i = i + 1
 	end
-	-- tablePrint(unassigned)
+	-- tablePrint( unassignedIDs)
 	--TODO you want to let player skip forward and backward through list, so re-implement "currentUnitIndex", lol
 	
 	--activity menu 
@@ -54,13 +54,13 @@ end
 
 function assignmentsDraw()
 	--draw current unit summary
-	drawUnitSummary(roster[unassigned[1]], 50, 50)
+	drawUnitSummary(roster[unassignedIDs[1]], 50, 50)
 	
 	white()
 	
 	--draw unassigned unit icons
 	love.graphics.print("Unassigned", 600, 48)
-	for k, index in ipairs(unassigned) do
+	for k, index in ipairs(unassignedIDs) do
 		drawUnitIcon(roster[index], 600 + ((k - 1) % 16 + 1) * 32, 32 + math.floor((k - 1) / 16 + 1) * 32)
 	end
 	
@@ -88,21 +88,39 @@ function assignmentsKeyPressed(key)
 
 	--was this a valid activity?
 	if activities[key] then
-		table.remove(unassigned, 1)
-		assignUnitTo(unassigned[1], activities[key])
+		assignUnitTo(unassignedIDs[1], activities[key])
+		table.remove(unassignedIDs, 1)
 	-- else
 		-- print(key.." is not an activity we provide")
 	end
 	
+	-- tablePrint(unassignedIDs)
+	
 	--TODO submenus for locations, etc
 	
+	--DEBUG shit
+	if key == "\\" then
+		print("\\ - all units without medals assigned to Idle")
+		-- tablePrint(unassignedIDs)
+		local i = 1
+		local num = #unassignedIDs
+		while i <= num do
+			if not roster[unassignedIDs[i]].bestMedal then
+				assignUnitTo(unassignedIDs[i], "Idle")
+				table.remove(unassignedIDs, i)
+				num = num - 1
+			else
+				i = i + 1
+			end
+		end
+	end
 end
 
 
 
-
-function assignUnitTo(cui, a)
-	table.insert(unitAssignments[a], cui)
+function assignUnitTo(rIndex, activity)
+	table.insert(unitAssignments[activity], rIndex)
+	print(rIndex..", "..roster[rIndex].name.." assigned to "..activity)
 end
 
 function findDestinations(a)

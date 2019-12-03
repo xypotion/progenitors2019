@@ -6,7 +6,7 @@ function initUnit(species, parent)
 
 	
 	u.maxLevel = math.random(36)
-	u.level = math.random(u.maxLevel)
+	u.level = 36 --DEBUG! math.random(u.maxLevel)
 	
 	u.stats = {}--deepClone(speciesData[species].stats)
 	for k,v in pairs(speciesData[species].stats) do
@@ -168,6 +168,25 @@ function drawUnitSummary(u, xOffset, yOffset)
 	love.graphics.print("HP\nINT\nSTR\nAGL", xOffset + 180, yOffset)
 	love.graphics.print(u.stats.maxHP.."\n"..u.stats.int.."\n"..u.stats.str.."\n"..u.stats.agl, xOffset + 240, yOffset)
 	
+	--show stat medals... you dork
+	if u.medals then
+		if u.medals.maxHP then
+			love.graphics.draw(images["Medal"..u.medals.maxHP], xOffset + 162, yOffset + 4, 0, 0.125, 0.125)
+		end
+
+		if u.medals.int then
+			love.graphics.draw(images["Medal"..u.medals.int], xOffset + 162, yOffset + 27, 0, 0.125, 0.125)
+		end
+
+		if u.medals.str then
+			love.graphics.draw(images["Medal"..u.medals.str], xOffset + 162, yOffset + 50, 0, 0.125, 0.125)
+		end
+
+		if u.medals.agl then
+			love.graphics.draw(images["Medal"..u.medals.agl], xOffset + 162, yOffset + 73, 0, 0.125, 0.125)
+		end
+	end
+	
 	--draw genome
 	drawGenome(u.genome, xOffset + 300, yOffset - 50)
 end
@@ -175,6 +194,13 @@ end
 function drawUnitIcon(u, xOffset, yOffset)
 	love.graphics.setColor(u.color)
 	love.graphics.draw(images[u.species], xOffset, yOffset, 0, 0.25, 0.25)
+	
+	white() 
+	
+	--got any medals?
+	if u.bestMedal then
+		love.graphics.draw(images["Medal"..u.bestMedal], xOffset + 16, yOffset, 0, 0.125, 0.125)
+	end
 end
 
 function drawGenome(g, xOffset, yOffset)

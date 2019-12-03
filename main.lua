@@ -14,6 +14,9 @@ function love.load()
 	--load images
 	images = {
 		-- Vulture = love.graphics.newImage("Vulture.png")
+		Medal1 = love.graphics.newImage("Medal1.png"),
+		Medal2 = love.graphics.newImage("Medal2.png"),
+		Medal3 = love.graphics.newImage("Medal3.png"),
 	}
 	for k,v in pairs(speciesData) do
 		images[k] = love.graphics.newImage(k..".png")
@@ -94,49 +97,47 @@ function findHighestStatsAmongLivingUnits()
 		for j,unit in pairs(roster) do
 			local stat = unit.stats[sn]
 			
-			if stat > winners[3] then
-				winners[3] = stat
-			end
+			if stat ~= winners[1] and stat ~= winners [2] and stat ~= winners[3] then
+				if stat > winners[3] then
+					winners[3] = stat
+				end
 			
-			if stat > winners[2] then
-				local swap = winners[2]
-				winners[2] = stat
-				winners[3] = swap
-			end			
+				if stat > winners[2] then
+					local swap = winners[2]
+					winners[2] = stat
+					winners[3] = swap
+				end			
 			
-			if stat > winners[1] then
-				local swap = winners[1]
-				winners[1] = stat
-				winners[2] = swap
+				if stat > winners[1] then
+					local swap = winners[1]
+					winners[1] = stat
+					winners[2] = swap
+				end
 			end
 		end
 		
 		bigWinners[sn] = deepClone(winners)
 	end
-	
-	tablePrint(bigWinners)
-	
-	--then find, like, the big winners
+		
+	--then find, like, the BIG WINNERS
 	for i,unit in pairs(roster) do
 		unit.medals = {}
-		local gotMedal = false --debug
 		
 		for j,sn in pairs(statNames) do
 			for medalNumber = 1, 3 do
 				if unit.stats[sn] == bigWinners[sn][medalNumber] then
 					unit.medals[sn] = medalNumber
-					gotMedal = true --debug
+					
+					--because apparently you have to do this... for some reason...
+					if not unit.bestMedal or medalNumber < unit.bestMedal then
+						unit.bestMedal = medalNumber
+					end
 				end
 			end
 		end
 		
-		--debug
-		if gotMedal then
-			print("\n"..i.." - "..unit.name.." Lv. "..unit.level)
-			tablePrint(unit.stats)
-			print("\nmedals:")
-			tablePrint(unit.medals)
-		end
+		print(i, unit.name)
+		tablePrint(unit.medals)
 	end
 end
 
