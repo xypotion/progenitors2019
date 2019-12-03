@@ -18,17 +18,13 @@ function love.load()
 	for k,v in pairs(speciesData) do
 		images[k] = love.graphics.newImage(k..".png")
 	end
-	tablePrint(images)
-	
+
+	--who's your progenitor?
 	roster = {}
-	roster[1] = initUnit("Vulture")
-	
+	roster[1] = initUnit(randomSpecies())
+		
 	for i = 2, 256 do 
-		if math.random() > 0.5 then
-			roster[i] = initUnit("Vulture", roster[i-1])
-		else
-			roster[i] = initUnit("Snake", roster[i-1])
-		end
+		roster[i] = initUnit(randomSpecies(), roster[i-1])
 	end
 	-- tablePrint(roster)
 	
@@ -88,19 +84,20 @@ function initMountain()
 	
 	m.rooms = {
 		initRoom("entrance"),
-		initRoom(),
-		initRoom(),
+		initRoom("residence"),
+		initRoom("storage"),
 	}
 	
 	return m
 end
 
 function initRoom(type)
-	if not type then type = "storage" end
+	if not type then type = "empty" end
 		
 	r = {}
 	r.type = type
 	r.uniqueName = type.." "..os.time()
+	r.size = "small"
 		
 	return r
 end

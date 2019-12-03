@@ -4,6 +4,9 @@ function initUnit(species, parent)
 	local u = {}
 	u.species = species
 	u.stats = deepClone(speciesData[species].stats)
+	for k,v in pairs(u.stats) do
+		u.stats[k] = u.stats[k] * speciesBaseStatMultiplier
+	end
 	
 	if parent then
 		u.name = generateName(parent.name)

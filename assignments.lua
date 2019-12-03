@@ -11,19 +11,23 @@ function assignmentsStart()
 	
 	--activity menu 
 	activities = {
-		t = "Train",
-		g = "Gather",
-		d = "Dig",
-		i = "Investigate",
-		f = "Fast",
-		m = "Mate",
-		h = "Heal",
-		w = "Welcome", --at the gate
-		-- x = "Recuperate" --should happen automatically
-		p = "Preserve", --food
-		e = "Enlarge", --rooms
+		a = "Alchemy",
 		b = "Bulk", --? i.e. bulk up (eat a lot more food, for growth)
-		s = "SORT"
+		c = "Construct", --rooms
+		d = "Dig",
+		e = "Enlarge", --rooms
+		f = "Fast",
+		g = "Gather",
+		h = "Heal", --others! not self
+		i = "Investigate",
+		m = "Mate",
+		p = "Preserve", --food
+		s = "SORT", --? just to sort unassigned units, but maybe list elsewhere...
+		t = "Train",
+		w = "Welcome", --? at the gate. "Greet" would be better...
+		x = "Empty", --turn any room into an Empty room
+		z = "Idle",
+		-- x = "Recuperate" --happens automatically when wounded BUT TODO player must choose what room to put unit in
 	}
 	-- tablePrint(activities)
 
