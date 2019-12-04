@@ -24,9 +24,11 @@ function love.load()
 
 	--who's your progenitor?
 	roster = {}
+	-- roster[1] = initUnit("Elephant")
 	roster[1] = initUnit(randomSpecies())
 		
 	for i = 2, 256 do 
+		-- roster[i] = initUnit("Elephant")
 		roster[i] = initUnit(randomSpecies(), roster[i-1])
 	end
 	-- tablePrint(roster)
@@ -136,8 +138,8 @@ function findHighestStatsAmongLivingUnits()
 			end
 		end
 		
-		print(i, unit.name)
-		tablePrint(unit.medals)
+		-- print(i, unit.name)
+		-- tablePrint(unit.medals)
 	end
 end
 

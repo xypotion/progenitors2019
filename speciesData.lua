@@ -52,8 +52,8 @@ speciesData = {
 		stats = {
 			maxHP = 4,
 			int = 2,
-			str = 2,
-			agl = 2
+			str = 3,
+			agl = 1
 		}
 	},
 	Falcon = {
@@ -78,6 +78,14 @@ speciesData = {
 			int = 2,
 			str = 2,
 			agl = 4
+		}
+	},
+	Koala = {
+		stats = {
+			maxHP = 4,
+			int = 2,
+			str = 2,
+			agl = 2
 		}
 	},
 }

@@ -56,7 +56,11 @@ function unitColorByGenome(g)
 	
 	-- tablePrint(counts)
 	
-	local min, mult = -0.75, 3
+	local min, mult = -0.666, 2.66 --very good
+	-- local min, mult = -0.666, 2.75 --also very good
+	-- local min, mult = -0.75, 3 --decent
+	-- local min, mult = -0.666, 3
+	-- local min, mult = -1, 4
 	c[1] = min + mult * counts.R / (counts.G + counts.B)
 	c[2] = min + mult * counts.G / (counts.R + counts.B)
 	c[3] = min + mult * counts.B / (counts.R + counts.G)

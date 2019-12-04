@@ -114,6 +114,26 @@ function assignmentsKeyPressed(key)
 			end
 		end
 	end
+	
+	if key == "[" then
+		print("[ - sort unassigned by INT")
+		table.sort(unassignedIDs, function(a,b) return ((roster[a].stats.int > roster[b].stats.int)) end)
+	end
+	
+	if key == "]" then
+		print("] - sort unassigned by STR")
+		table.sort(unassignedIDs, function(a,b) return ((roster[a].stats.str > roster[b].stats.str)) end)
+	end
+	
+	if key == "=" then
+		print("= - sort unassigned by HP")
+		table.sort(unassignedIDs, function(a,b) return ((roster[a].stats.maxHP > roster[b].stats.maxHP)) end)
+	end
+	
+	if key == "-" then
+		print("- - sort unassigned by AGL")
+		table.sort(unassignedIDs, function(a,b) return ((roster[a].stats.agl > roster[b].stats.agl)) end)
+	end
 end
 
 
