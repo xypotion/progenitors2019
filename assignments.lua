@@ -134,6 +134,11 @@ function assignmentsKeyPressed(key)
 		print("- - sort unassigned by AGL")
 		table.sort(unassignedIDs, function(a,b) return ((roster[a].stats.agl > roster[b].stats.agl)) end)
 	end
+	
+	if key == "/" then
+		print("/ - start fresh")
+		love.load()
+	end
 end
 
 

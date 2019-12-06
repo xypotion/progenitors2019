@@ -13,79 +13,39 @@ end
 
 speciesData = {
 	Snake = {
-		stats = {
-			maxHP = 2,
-			int = 2,
-			str = 3,
-			agl = 3
-		}
+		stats = {maxHP = 2, int = 2, str = 3, agl = 3},
 	},
 	Vulture = {
-		stats = {
-			-- maxHP = 4,
-			-- int = 4,
-			-- str = 1,
-			-- agl = 1
-			maxHP = 3,
-			int = 2,
-			str = 2,
-			agl = 3
-		}
+		stats = {maxHP = 3, int = 2, str = 2, agl = 3},
 	},
 	Ant = {
-		stats = {
-			maxHP = 1,
-			int = 3,
-			str = 3,
-			agl = 3
-		}
+		stats = {maxHP = 2, int = 3, str = 3, agl = 2},
 	},
 	Bee = {
-		stats = {
-			maxHP = 2,
-			int = 3,
-			str = 2,
-			agl = 3
-		}
+		stats = {maxHP = 1, int = 3, str = 3, agl = 3},
 	},
 	Elephant = {
-		stats = {
-			maxHP = 4,
-			int = 2,
-			str = 3,
-			agl = 1
-		}
+		stats = {maxHP = 4, int = 2, str = 3, agl = 1},
 	},
 	Falcon = {
-		stats = {
-			maxHP = 2,
-			int = 3,
-			str = 2,
-			agl = 3
-		}
+		stats = {maxHP = 2, int = 3, str = 2, agl = 3},
 	},
 	Rabbit = {
-		stats = {
-			maxHP = 3,
-			int = 2,
-			str = 1,
-			agl = 4
-		}
+		stats = {maxHP = 3, int = 2, str = 1, agl = 4},
 	},
 	Squirrel = {
-		stats = {
-			maxHP = 2,
-			int = 2,
-			str = 2,
-			agl = 4
-		}
+		stats = {maxHP = 2, int = 2, str = 2, agl = 4},
 	},
 	Koala = {
-		stats = {
-			maxHP = 4,
-			int = 2,
-			str = 2,
-			agl = 2
-		}
+		stats = {maxHP = 4, int = 2, str = 2, agl = 2},
+	},
+	Bear = {
+		stats = {maxHP = 3, int = 2, str = 4, agl = 1},
+	},
+	Chameleon = {
+		stats = {maxHP = 1, int = 4, str = 2, agl = 3},
+	},
+	Octopus = {
+		stats = {maxHP = 2, int = 4, str = 2, agl = 2},
 	},
 }
