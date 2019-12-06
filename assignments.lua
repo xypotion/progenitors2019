@@ -1,9 +1,8 @@
 --[[
 TODO
-show assignments
-add location submenu
+add location submenus
 limit assignments by location
-add ? ...shit. lol
+show medals only sometimes. a toggle or something
 undo button
 reset button
 show assignment info (duration, description, cost)
@@ -206,7 +205,7 @@ function assignUnitTo(rIndex, activity)
 		end
 	end
 	
-	tablePrint(unitAssignments)
+	-- tablePrint(unitAssignments)
 end
 
 function findDestinations(a)
