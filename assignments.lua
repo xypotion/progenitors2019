@@ -1,3 +1,20 @@
+--[[
+TODO
+show assignments
+add location submenu
+limit assignments by location
+add ? ...shit. lol
+undo button
+reset button
+show assignment info (duration, description, cost)
+for "expedition" assignments, show area info
++ add "goal" submenu
+add mate submenu to Mate & stuff
+show resources (should probably be universal)
+mouse input...
+actual assignement resolution...
+--]]
+
 function assignmentsStart()	
 	--index unassigned units
 	unassignedIDs = {}
@@ -81,6 +98,12 @@ function assignmentsDraw()
 	-- 	love.graphics.print(d.uniqueName, 350, 200 + i * 30)
 	-- 	i = i + 1
 	-- end
+	
+	for k,v in pairs(unitAssignments) do
+		if v[1] then 
+			love.graphics.print(k, 500, 500)
+		end
+	end
 end
 
 function assignmentsKeyPressed(key)
@@ -168,9 +191,8 @@ function findDestinations(a)
 end
 
 
-
-function drawAllUnits()	
-	for k, v in pairs (roster) do
-		drawUnit(v, math.floor(k/20) * 150 + 10, 50 + (k % 20) * 20)
-	end
-end
+-- function drawAllUnits()
+-- 	for k, v in pairs (roster) do
+-- 		drawUnit(v, math.floor(k/20) * 150 + 10, 50 + (k % 20) * 20)
+-- 	end
+-- end
