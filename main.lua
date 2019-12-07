@@ -2,6 +2,7 @@
 
 require "assignments"
 require "unit"
+require "activityData"
 
 function love.load()
 	math.randomseed(os.time())
@@ -154,9 +155,9 @@ function initMountain()
 	local m = {}
 	
 	m.rooms = {
-		initRoom("entrance"),
-		initRoom("residence"),
-		initRoom("storage"),
+		initRoom("Entrance"),
+		initRoom("Residence"),
+		initRoom("Storage"),
 	}
 	
 	return m

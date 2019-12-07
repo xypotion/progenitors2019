@@ -1,6 +1,6 @@
 --[[
 TODO
-add location submenus
+add locations & submenus
 limit assignments by location
 show medals only sometimes. a toggle or something
 undo button
@@ -26,34 +26,13 @@ function assignmentsStart()
 	end
 	-- tablePrint( unassignedIDs)
 	--TODO you want to let player skip forward and backward through list, so re-implement "currentUnitIndex", lol
-	
-	--activity menu 
-	activities = {
-		{key = 'a', name = "Alchemy"},
-		{key = 'b', name = "Bulk"}, --? i.e. bulk up (eat a lot more food, for growth)
-		{key = 'c', name = "Construct"}, --rooms
-		{key = 'd', name = "Dig"},
-		{key = 'e', name = "Enlarge"}, --rooms
-		{key = 'f', name = "Fast"},
-		{key = 'g', name = "Gather"},
-		{key = 'h', name = "Heal"}, --others! not self
-		{key = 'i', name = "Investigate"},
-		{key = 'm', name = "Mate"},
-		{key = 'p', name = "Preserve"}, --food
-		-- {key = s, name = "SORT"}, --? just to sort unassigned units, but maybe list elsewhere...
-		{key = 't', name = "Train"},
-		{key = 'w', name = "Welcome"}, --? at the gate. "Greet" would be better...
-		{key = 'x', name = "Empty"}, --turn any room into an Empty room
-		{key = 'z', name = "Idle"},
-		-- x = "Recuperate" --happens automatically when wounded BUT TODO player must choose what room to put unit in
-	}
-	-- tablePrint(activities)
 
 	--initialize unit assignments table
 	unitAssignments = {}
 	for i, a in ipairs(activities) do
 		unitAssignments[i] = {
 			name = a.name,
+			description = a.description,
 			locations = {{}}, --TODO DEBUG for now. eventually fill with valid locations
 			count = 0,
 			rowsAbove = 0
@@ -119,7 +98,7 @@ function assignmentsDraw()
 	for k,ua in pairs(unitAssignments) do
 		if ua.count > 0 then 
 			-- love.graphics.print(k, 100 * ua.count, 500)
-			love.graphics.print(ua.name, 600, ua.rowsAbove * rh)
+			love.graphics.print(ua.name.." - "..ua.description, 600, ua.rowsAbove * rh)
 			drawUnitIconsFromRIDListAt(ua.locations[1], 600, ua.rowsAbove * (rh+1))
 		end
 	end
