@@ -78,11 +78,13 @@ function assignmentsDraw()
 	
 	white()
 	
+	love.graphics.print("Select activity for this unit this month:", 50, 165)
+	
 	--draw activities menu
 	local i = 0
 	for k, a in pairs(activities) do
-		love.graphics.print(a.key, 100, 200 + i * 30)
-		love.graphics.print(a.name, 130, 200 + i * 30)
+		love.graphics.print(a.key, 50, 200 + i * rh) --TODO make this look like a key
+		love.graphics.print(a.name, 80, 200 + i * rh)
 		i = i + 1
 	end
 	
@@ -105,17 +107,22 @@ function assignmentsDraw()
 end
 
 function assignmentsKeyPressed(key)
-	--TODO enable capital letters
+	--TODO enable capital letters for auto-location-assignment
+	--TODO enable space for auto-assignment
+	local activity = nil
 
 	--was this a valid activity?
 	for k,a in pairs(activities) do
 		if a.key == key then
-			assignUnitTo(unassignedIDs[1], a.name)
-			table.remove(unassignedIDs, 1)
-		-- else
-			-- print(key.." is not an activity we provide")
+			activity = a
+			break
 		end
 	end
+	if not activity then return end
+	
+	--assign if was an activity, except...
+	assignUnitTo(unassignedIDs[1], activity.name)
+	table.remove(unassignedIDs, 1)
 	
 	-- tablePrint(unassignedIDs)
 	
@@ -166,12 +173,12 @@ end
 
 
 
-function assignUnitTo(rIndex, activity)
+function assignUnitTo(rosterIndex, activity, location)
 	for k,ua in pairs(unitAssignments) do
 		if ua.name == activity then
-			table.insert(ua.locations[1], rIndex)--wrong
+			table.insert(ua.locations[1], rosterIndex)--wrong
 			ua.count = ua.count + 1
-			print(rIndex..", "..roster[rIndex].name.." assigned to "..activity)
+			print(rosterIndex..", "..roster[rosterIndex].name.." assigned to "..activity)
 		end
 	end
 	

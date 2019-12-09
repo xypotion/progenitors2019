@@ -52,12 +52,26 @@ speciesData = {
 		stats = {maxHP = 1, int = 4, str = 4, agl = 1}, rs = 2
 	},
 	Crab = {
-		stats = {maxHP = 2, int = 2, str = 4, agl = 2},
+		stats = {maxHP = 3, int = 2, str = 3, agl = 2},
 	},
 }
 
 --decoupling these from races because they will probably be moved around a lot
 --various gameplay logics will just look at these RS IDs to account for racial skills
 RS = {} -- Racial Skills
-RS[1] = {name = "Long-lived", desc = "Old age sets in later than normal."}
+RS[1] = {name = "Long-lived", desc = "Old age sets in later than normal."} --at max level, units eventually become "old" and die
 RS[2] = {name = "Pious", desc = "Generates more LP at the full moon."}
+RS[3] = {name = "Practitioner", desc = "Heals the wounded more thoroughly."} --"scarred" status is less harsh?
+RS[4] = {name = "Scavenger", desc = "Can eat rot."}
+RS[5] = {name = "Team Player", desc = "Gets more done in large groups."}
+RS[6] = {name = "Honey", desc = "Crafts health elixirs with ease."}
+RS[7] = {name = "Far-seeing", desc = "Very effective at scouting enemies."}
+RS[8] = {name = "Prolific", desc = "Takes less time to produce and raise offspring."}
+RS[9] = {name = "Hoarder", desc = "Good at preserving food."}
+RS[10] = {name = "Cute", desc = "Charms visitors at the gate."}
+RS[11] = {name = "Tough", desc = "Cannot be wounded."}
+RS[12] = {name = "Adaptive", desc = "Will permanently copy random alleles when working with others."}
+RS[13] = {name = "Sea Spy", desc = "Can investigate and evade danger easily in underwater areas."}
+RS[14] = {name = "Water Warrior", desc = "Can gather and evade danger easily in underwater areas."}
+RS[15] = {name = "", desc = ""}
+RS[16] = {name = "", desc = ""}
