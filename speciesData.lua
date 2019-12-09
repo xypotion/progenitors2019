@@ -48,4 +48,16 @@ speciesData = {
 	Octopus = {
 		stats = {maxHP = 2, int = 4, str = 2, agl = 2},
 	},
+	Mantis = {
+		stats = {maxHP = 1, int = 4, str = 4, agl = 1}, rs = 2
+	},
+	Crab = {
+		stats = {maxHP = 2, int = 2, str = 4, agl = 2},
+	},
 }
+
+--decoupling these from races because they will probably be moved around a lot
+--various gameplay logics will just look at these RS IDs to account for racial skills
+RS = {} -- Racial Skills
+RS[1] = {name = "Long-lived", desc = "Old age sets in later than normal."}
+RS[2] = {name = "Pious", desc = "Generates more LP at the full moon."}
