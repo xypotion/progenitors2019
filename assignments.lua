@@ -1,6 +1,12 @@
 --[[
 TODO
 add locations & submenus
+	before assigning unit to activity, check mountain for rooms of valid type(s)
+		whatever rooms found that are not full, offer as possible locations for activity
+			whatever room the player chooses, add that to the activity's locations if necessary, then insert rosterIndex
+		if no rooms are found, then "nowhere to do that!"; this should only happen when all valid locations are FULL
+		...so should candidate rooms be removed from validActivities as they fill up? and validActivities be removed if they run out of rooms?
+  if outdoor activity, offer all areas
 limit assignments by location
 show medals only sometimes. a toggle or something
 undo button
@@ -24,12 +30,43 @@ function assignmentsStart()
 	  unassignedIDs[i] = k
 	  i = i + 1
 	end
-	-- tablePrint( unassignedIDs)
+	-- tablePrint(unassignedIDs)
 	--TODO you want to let player skip forward and backward through list, so re-implement "currentUnitIndex", lol
+
+	--what activities can actually be done?
+	validActivities = {}
+	for k,a in pairs(activities) do
+		-- print(a.name)
+		
+		--is it an "outside" activity?
+		if a.outside then
+			table.insert(validActivities, deepClone(a))
+		else
+			--if no, then check all rooms in mountain; find any valid ones? or is this an "always" activity? then add
+			if a.validRooms or a.always then --slightly redundant TODO maybe refactor this whole block at some point
+				local validActivityRoomTypes = a.validRooms or {} --a little janky but meh
+				local validMountainRoomIDs = {}
+				
+				for i,r in pairs(mountain.rooms) do
+					if tableContains(validActivityRoomTypes, r.type) then
+						table.insert(validMountainRoomIDs, i)
+					end
+				end
+				
+				if validMountainRoomIDs[1] or a.always then
+					local va = deepClone(a)
+					va.candidateRoomIDs = deepClone(validMountainRoomIDs)
+					table.insert(validActivities, va) 
+				end
+			end
+		end
+	end
+	
+	-- tablePrint(validActivities)
 
 	--initialize unit assignments table
 	unitAssignments = {}
-	for i, a in ipairs(activities) do
+	for i, a in ipairs(validActivities) do
 		unitAssignments[i] = {
 			name = a.name,
 			description = a.description,
@@ -41,10 +78,10 @@ function assignmentsStart()
 	end
 	
 	--find all destinations
-	allDestinations = {}
-	for k,a in pairs(activities) do
-		allDestinations[a] = findDestinations(a)
-	end
+	-- allDestinations = {}
+	-- for k,a in pairs(validActivities) do
+	-- 	allDestinations[a] = findDestinations(a)
+	-- end
 	
 	-- tablePrint(allDestinations)
 	
@@ -82,7 +119,7 @@ function assignmentsDraw()
 	
 	--draw activities menu
 	local i = 0
-	for k, a in pairs(activities) do
+	for k, a in pairs(validActivities) do
 		love.graphics.print(a.key, 50, 200 + i * rh) --TODO make this look like a key
 		love.graphics.print(a.name, 80, 200 + i * rh)
 		i = i + 1
@@ -96,7 +133,7 @@ function assignmentsDraw()
 	-- 	i = i + 1
 	-- end
 	
-	--draw assignments
+	--draw assignments in locations
 	for k,ua in pairs(unitAssignments) do
 		if ua.count > 0 then 
 			-- love.graphics.print(k, 100 * ua.count, 500)
@@ -108,25 +145,31 @@ end
 
 function assignmentsKeyPressed(key)
 	--TODO enable capital letters for auto-location-assignment
-	--TODO enable space for auto-assignment
+	--TODO enable space for auto-assignment (or skip/"back of the line"?)
 	local activity = nil
 
-	--was this a valid activity?
-	for k,a in pairs(activities) do
+	--did that key point to a real activity?
+	for k,a in pairs(validActivities) do
 		if a.key == key then
 			activity = a
 			break
 		end
 	end
 	if not activity then return end
-	
-	--assign if was an activity, except...
-	assignUnitTo(unassignedIDs[1], activity.name)
-	table.remove(unassignedIDs, 1)
-	
-	-- tablePrint(unassignedIDs)
+		
+	-- tablePrint(activity)
 	
 	--TODO submenus for locations, etc
+	if activity.outside then
+		--TODO make player choose an outside area
+		assignUnitTo(unassignedIDs[1], activity.name)
+		table.remove(unassignedIDs, 1)
+	else
+		--TODO make player choose a room TODO unless it doesn't require a room, like Dig
+		print("pick a room:")
+		tablePrint(activity.candidateRoomIDs)
+	end
+	
 	
 	--DEBUG shit
 	if key == "\\" then
@@ -176,7 +219,7 @@ end
 function assignUnitTo(rosterIndex, activity, location)
 	for k,ua in pairs(unitAssignments) do
 		if ua.name == activity then
-			table.insert(ua.locations[1], rosterIndex)--wrong
+			table.insert(ua.locations[1], rosterIndex)--wrong TODO use actual locations, not just [1]
 			ua.count = ua.count + 1
 			print(rosterIndex..", "..roster[rosterIndex].name.." assigned to "..activity)
 		end
@@ -194,24 +237,24 @@ function assignUnitTo(rosterIndex, activity, location)
 	-- tablePrint(unitAssignments)
 end
 
-function findDestinations(a)
-	d = {}
-	
-	if a == "Train" then
-		d.space = world[1] --should always be foothills
-		
-		--look at all rooms, finding Dojos
-		rn = 1 --"room number"
-		for k,r in pairs(mountain.rooms) do
-			if r.type == "Dojo" then
-				d[rn] = r
-				rn = rn + 1
-			end
-		end
-	end
-	
-	return d
-end
+-- function findDestinations(a)
+-- 	d = {}
+--
+-- 	if a == "Train" then
+-- 		d.space = world[1] --should always be foothills
+--
+-- 		--look at all rooms, finding Dojos
+-- 		rn = 1 --"room number"
+-- 		for k,r in pairs(mountain.rooms) do
+-- 			if r.type == "Dojo" then
+-- 				d[rn] = r
+-- 				rn = rn + 1
+-- 			end
+-- 		end
+-- 	end
+--
+-- 	return d
+-- end
 
 
 -- function drawAllUnits()

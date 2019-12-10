@@ -10,7 +10,8 @@ function love.load()
 	
 	init13colors()
 	
-	love.graphics.setNewFont(20)
+	f1 = love.graphics.setNewFont(20)
+	f2 = love.graphics.newFont(10)
 	
 	--load images
 	images = {
@@ -155,7 +156,7 @@ function initMountain()
 	local m = {}
 	
 	m.rooms = {
-		initRoom("Entrance"),
+		initRoom("Entry"),
 		initRoom("Residence"),
 		initRoom("Storage"),
 	}
@@ -168,8 +169,9 @@ function initRoom(type)
 		
 	r = {}
 	r.type = type
-	r.uniqueName = type.." "..os.time()
-	r.size = "small"
+	r.name = type.." "..(os.time() % 1000)
+	r.capacity = 3
+	print(r.name)
 		
 	return r
 end
@@ -358,4 +360,12 @@ function draw13colors()
 	love.graphics.print("really", 60, 290)
 	love.graphics.setColor(1,0,1)
 	love.graphics.print("occur", 60, 300)
+end
+
+function tableContains(table, item)
+	for k,v in pairs(table) do
+		if item == v then return true end
+	end
+	
+	return false
 end

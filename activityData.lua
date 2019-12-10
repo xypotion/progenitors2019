@@ -19,11 +19,13 @@ activities = {
 		description = "Build or improve structures inside rooms",
 		validRooms = {"Empty"},
 		outside = false,
+		always = true,
 	}, --rooms
 	{
 		key = 'd', name = "Dig", 
 		description = "Dig into the mountain to make more rooms",
 		outside = false,
+		always = true,
 		-- validRooms = {}, --if not validRooms then just do it? or handle specially somehow
 	},
 	-- {key = 'e', name = "Enlarge",
@@ -69,13 +71,12 @@ activities = {
 		key = 's', name = "Scout",
 		description = "Learn about nearby enemies",
 		outside = true, --kinda. CAN scout world areas, or just next approaching army
-		-- validRooms = {"Kitchen"},
 	},
 	{
 		key = 't', name = "Train", 
 		description = "Strengthen your body; Max Lv +2 and eat 1 more food",
 		validRooms = {"Dojo"},
-		outside = false, --also just kinda. CAN train in outside areas. maybe.
+		outside = false, --also just kinda. CAN train in outside areas... maybe.
 	},
 	{
 		key = 'w', name = "Welcome", 
@@ -87,11 +88,13 @@ activities = {
 		key = 'x', name = "Empty", 
 		description = "Clear a room out and reclaim materials",
 		outside = false,
+		always = true,
 	}, --turn any room into an Empty room
 	{
 		key = 'z', name = "Idle", 
 		description = "Do nothing. Some residents will get bored.",
 		outside = false,
+		always = true,
 		-- validRooms = {"Residence"}, --doesn't matter where
 	},
 	-- x = "Recuperate" --happens automatically when wounded BUT TODO player must choose what room to put unit in
