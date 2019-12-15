@@ -8,8 +8,10 @@ function love.load()
 	math.randomseed(os.time())
 	love.window.setMode(1200, 720)
 	
-	init13colors()
+	crazyColor = {0.5, 0.5, 0.5}
 	
+	love.graphics.setPointSize(2.5)
+		
 	f1 = love.graphics.setNewFont(20)
 	f2 = love.graphics.newFont(10)
 	
@@ -31,9 +33,9 @@ function love.load()
 	roster[1] = initUnit(randomSpecies())
 		
 	for i = 2, 256 do 
-		-- roster[i] = initUnit("Ant")
+		roster[i] = initUnit("Snake")
 		-- roster[i] = initUnit("Elephant")
-		roster[i] = initUnit(randomSpecies(), roster[i-1])
+		-- roster[i] = initUnit(randomSpecies(), roster[i-1])
 	end
 	-- tablePrint(roster)
 	
@@ -59,15 +61,22 @@ function love.load()
 end
 
 function love.update(dt)
+	--debug?
+	-- crazyColor[1] = 1 % (crazyColor[1])-- + math.random() / 1)
+	-- print(crazyColor[1])
+	crazyColor[1] = math.random() + glow
+	crazyColor[2] = math.random() + glow
+	crazyColor[3] = math.random() + glow
+
+	
+	--these will return!
 	oscillator = oscillator + dt * 5
-	glow = math.cos(oscillator) / 2 + 0.5
+	glow = math.cos(oscillator) / 2 --+ 0.5
 	
 	_G[phase.."Update"](dt)
 end
 
-function love.draw()
-	-- draw13colors()
-
+function love.draw()	
 	white()
 	
 	love.graphics.print(phase, 5, 5)
@@ -286,80 +295,6 @@ function tablePrint(table, offset)
 			print(offset.."["..k.."] = "..tostring(v))
 		end
 	end	
-end
-
---just experimenting with 13 unit colors, to start
-
-function init13colors()
-	h = 0.9
-	m = 0.6
-	l = 0.3
-	
-	thirteenColors = {
-		{h, l, l},
-		{l, h, h},
-		{l, h, l},
-		{h, l, h},
-		{l, l, h},
-		{h, h, l},
-		
-		{h, m, l},
-		{h, l, m},
-		{m, h, l},
-		{m, l, h},
-		{l, h, m},
-		{l, m, h},
-
-		{h, h, h},
-		-- {l, l, l},
-		-- {m, m, m},
-		--
-		-- {h, l, l},
-		-- {l, m, m},
-		-- {l, h, l},
-		-- {m, l, m},
-		-- {l, l, h},
-		-- {m, m, l},
-		--
-		-- {h, m, m},
-		-- {l, m, m},
-		-- {m, h, m},
-		-- {m, l, m},
-		-- {m, m, h},
-		-- {m, m, l},
-		--
-		-- {m, l, l},
-		-- {m, h, h},
-		-- {l, m, l},
-		-- {h, m, h},
-		-- {l, l, m},
-		-- {h, h, m},
-	}
-end
-
-function draw13colors()
-	for i = 1, 13 do
-		local x = (i - 1) % 6
-		local y = math.ceil(i / 6)
-		
-		love.graphics.setColor(thirteenColors[i])
-		
-		love.graphics.rectangle("fill", 60 + x*50, 10 + y*50, 40, 40)
-	end	
-	-- love.setColor
-	
-	love.graphics.setColor(1,0,0)
-	love.graphics.print("these", 60, 250)
-	love.graphics.setColor(1,1,0)
-	love.graphics.print("bold", 60, 260)
-	love.graphics.setColor(0,1,0)
-	love.graphics.print("colors", 60, 270)
-	love.graphics.setColor(0,1,1)
-	love.graphics.print("don't", 60, 280)
-	love.graphics.setColor(0,0,1)
-	love.graphics.print("really", 60, 290)
-	love.graphics.setColor(1,0,1)
-	love.graphics.print("occur", 60, 300)
 end
 
 function tableContains(table, item)

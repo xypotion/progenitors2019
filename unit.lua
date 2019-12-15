@@ -199,6 +199,15 @@ function drawUnitIcon(u, xOffset, yOffset)
 	love.graphics.setColor(u.color)
 	love.graphics.draw(images[u.species], xOffset, yOffset, 0, 0.25, 0.25)
 	
+	-- --eyes
+	-- ok, this proof of concept works. do it better, though TODO
+	-- if speciesData[u.species].eyes then
+	-- 	love.graphics.setColor(crazyColor)
+	-- 	-- print("ping")
+	-- 	-- love.graphics.points(9,9)
+	-- 	love.graphics.points(speciesData[u.species].eyes[1] * 2 + xOffset - 1, speciesData[u.species].eyes[2] * 2 + yOffset - 1)
+	-- end
+	
 	white() 
 	
 	--got any medals?

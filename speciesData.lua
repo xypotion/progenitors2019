@@ -14,6 +14,7 @@ end
 speciesData = {
 	Snake = {
 		stats = {maxHP = 2, int = 2, str = 3, agl = 3},
+		eyes = {6,4}
 	},
 	Vulture = {
 		stats = {maxHP = 3, int = 2, str = 2, agl = 3},
@@ -25,7 +26,7 @@ speciesData = {
 		stats = {maxHP = 1, int = 3, str = 3, agl = 3},
 	},
 	Elephant = {
-		stats = {maxHP = 4, int = 2, str = 3, agl = 1},
+		stats = {maxHP = 4, int = 3, str = 2, agl = 1},
 	},
 	Falcon = {
 		stats = {maxHP = 2, int = 3, str = 2, agl = 3},
@@ -53,6 +54,15 @@ speciesData = {
 	},
 	Crab = {
 		stats = {maxHP = 3, int = 2, str = 3, agl = 2},
+	},
+	Goat = {
+		stats = {maxHP = 3, int = 1, str = 3, agl = 3},
+	},
+	Moose = {
+		stats = {maxHP = 4, int = 2, str = 3, agl = 1},
+	},
+	Owl = {
+		stats = {maxHP = 1, int = 4, str = 1, agl = 4},
 	},
 }
 
