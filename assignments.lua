@@ -77,6 +77,9 @@ function assignmentsStart()
 		--TODO also add valid rooms (with capacities) and world areas (? or those can be added later as units are assigned)
 	end
 	
+	submenu1 = {}
+	submenu2 = {}
+	
 	--find all destinations
 	-- allDestinations = {}
 	-- for k,a in pairs(validActivities) do
@@ -118,20 +121,20 @@ function assignmentsDraw()
 	love.graphics.print("Select activity for this unit this month:", 50, 165)
 	
 	--draw activities menu
-	local i = 0
-	for k, a in pairs(validActivities) do
-		love.graphics.print(a.key, 50, 200 + i * rh) --TODO make this look like a key
-		love.graphics.print(a.name, 80, 200 + i * rh)
-		i = i + 1
+	for k, a in ipairs(validActivities) do
+		love.graphics.print(a.key, 50, 165 + k * rh) --TODO make this look like a key
+		love.graphics.print(a.name, 80, 165 + k * rh)
 	end
 	
-	--debug... draw all Train destinations
-	-- i = 0
-	-- for k,d in pairs(allDestinations.Train) do
-	-- 	love.graphics.print(k, 300, 200 + i * 30)
-	-- 	love.graphics.print(d.uniqueName, 350, 200 + i * 30)
-	-- 	i = i + 1
-	-- end
+	--draw submenu1 if it's been populated
+	if submenu1.label then --a little hacky, but should work, right? maybe reconsider later on TODO
+		love.graphics.print(submenu1.label, 300, 200)
+		
+		for k,v in ipairs(submenu1) do
+			love.graphics.print(k, 350, 200 + k * rh) --TODO make this look like a key
+			love.graphics.print(v, 380, 200 + k * rh)
+		end
+	end
 	
 	--draw assignments in locations
 	for k,ua in pairs(unitAssignments) do
@@ -142,6 +145,13 @@ function assignmentsDraw()
 		end
 	end
 end
+
+
+
+
+
+
+
 
 function assignmentsKeyPressed(key)
 	--TODO enable capital letters for auto-location-assignment
@@ -155,19 +165,44 @@ function assignmentsKeyPressed(key)
 			break
 		end
 	end
-	if not activity then return end
+	-- if not activity then return end
 		
 	-- tablePrint(activity)
 	
 	--TODO submenus for locations, etc
-	if activity.outside then
-		--TODO make player choose an outside area
-		assignUnitTo(unassignedIDs[1], activity.name)
-		table.remove(unassignedIDs, 1)
-	else
-		--TODO make player choose a room TODO unless it doesn't require a room, like Dig
-		print("pick a room:")
-		tablePrint(activity.candidateRoomIDs)
+	if activity then
+		if activity.outside then
+			--TODO make player choose an outside area
+			submenu1 = {
+				label = "Select outside area:",
+				activity = activity
+			}
+			
+			--TODO only add to menu if there are appropriate goals for the activity in the area
+			for k,v in ipairs(world) do
+				submenu1[k] = v.name
+			end
+			
+			print("submenu1")
+			tablePrint(submenu1)
+			
+			-- assignUnitTo(unassignedIDs[1], activity.name)
+			-- table.remove(unassignedIDs, 1)
+		else
+			--TODO make player choose a room TODO unless it doesn't require a room, like Dig
+			print("pick a room:")
+			tablePrint(activity.candidateRoomIDs)
+		end
+	end
+	
+	--submenu shit. kind of proof of concept for now
+	if submenu1.label then --again, hacky. clean up later TODO
+		if submenu1[tonumber(key)] then
+			print("ping!")
+			assignUnitTo(unassignedIDs[1], submenu1.activity.name)
+			table.remove(unassignedIDs, 1)
+			submenu1 = {}
+		end
 	end
 	
 	

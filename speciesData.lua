@@ -53,7 +53,7 @@ speciesData = {
 		stats = {maxHP = 1, int = 4, str = 4, agl = 1}, rs = 2
 	},
 	Crab = {
-		stats = {maxHP = 3, int = 2, str = 3, agl = 2},
+		stats = {maxHP = 3, int = 2, str = 3, agl = 2}, rs = 14,
 	},
 	Goat = {
 		stats = {maxHP = 3, int = 1, str = 3, agl = 3},

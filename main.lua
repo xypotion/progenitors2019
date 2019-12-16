@@ -33,9 +33,9 @@ function love.load()
 	roster[1] = initUnit(randomSpecies())
 		
 	for i = 2, 256 do 
-		roster[i] = initUnit("Snake")
+		-- roster[i] = initUnit("Snake")
 		-- roster[i] = initUnit("Elephant")
-		-- roster[i] = initUnit(randomSpecies(), roster[i-1])
+		roster[i] = initUnit(randomSpecies(), roster[i-1])
 	end
 	-- tablePrint(roster)
 	
@@ -195,12 +195,13 @@ function initWorld()
 	local w = {}
 	
 	w[1] = initArea("Foothills", 1)
+	w[2] = initArea("Forest", 1)
 	
 	return w
 end
 
 function initArea(type, level)
-	if not type then type = "blank" end
+	if not type or not areaData[type] then type = "BLANK" end
 	if not level then level = 1 end
 	
 	local a = deepClone(areaData[type])
@@ -226,12 +227,18 @@ function initArea(type, level)
 		end
 	end
 	
-	a.uniqueName = a.type.." "..a.rand
+	a.name = a.type.." "..(os.time() % 1000) --aka uniqueName
 	
 	return a
 end
 
 areaData = {
+	BLANK = {
+		resources = {},
+		rewards = {},
+		hazards = {},
+		enemies = {}
+	},
 	Foothills = {
 		resources = {
 			{type = "foliage", abn = 1},
