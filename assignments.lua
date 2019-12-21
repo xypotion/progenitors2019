@@ -21,7 +21,7 @@ actual assignement resolution...
 --]]
 
 function assignmentsStart()	
-	rh = 32 --row height, in pixels
+	rh = 34 --row height, in pixels
 	
 	--index unassigned units
 	unassignedIDs = {}
@@ -98,7 +98,7 @@ function drawUnitIconsFromRIDListAt(list, xOffset, yOffset)
 	for k, index in ipairs(list) do
 		-- if list[1] then
 		-- tablePrint(list)
-			drawUnitIcon(roster[index], xOffset + ((k - 1) % 16 + 1) * 32, yOffset + math.floor((k - 1) / 16 + 1) * rh)
+			drawUnitIcon(roster[index], xOffset + ((k - 1) % 16 + 1) * rh, yOffset + math.floor((k - 1) / 16 + 1) * rh)
 		-- end
 	end
 end 
