@@ -66,16 +66,31 @@ function assignmentsStart()
 
 	--initialize unit assignments table
 	unitAssignments = {}
+
 	for i, a in ipairs(validActivities) do
 		unitAssignments[i] = {
 			name = a.name,
 			description = a.description,
 			locations = {{}}, --TODO DEBUG for now. eventually fill with valid locations
 			count = 0,
-			rowsAbove = 0
+			rowsAbove = 0,
+			outside = a.outside
 		}
 		--TODO also add valid rooms (with capacities) and world areas (? or those can be added later as units are assigned)
 	end
+	
+	--for outside stuff, which will be displayed separately
+	expeditions = {
+		rowsAbove = 0,
+		locations = deepClone(world)
+	} 
+
+	--a bit janky, but let these cloney locations track their own assignees
+	for k,v in ipairs(expeditions.locations) do
+		v.assignees = {}
+	end
+
+	calculateAssignmentRowCounts()
 	
 	submenu1 = {}
 	submenu2 = {}
@@ -92,8 +107,10 @@ function assignmentsStart()
 end
 
 function assignmentsUpdate(dt)
+	-- TODO animations or something? lol
 end
 
+--takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
 function drawUnitIconsFromRIDListAt(list, xOffset, yOffset)
 	for k, index in ipairs(list) do
 		-- if list[1] then
@@ -148,7 +165,32 @@ function assignmentsDraw()
 		if ua.count > 0 then 
 			-- love.graphics.print(k, 100 * ua.count, 500)
 			love.graphics.print(ua.name.." - "..ua.description, 600, ua.rowsAbove * rh)
-			drawUnitIconsFromRIDListAt(ua.locations[1], 600, ua.rowsAbove * (rh+1))
+			drawUnitIconsFromRIDListAt(ua.locations[1], 600, ua.rowsAbove * (rh)) --TODO ua.locations is not being used correctly yet
+		end
+	end
+	
+	--then draw expeditions if there are any pending
+	if expeditions.locations[1] then --TODO this line stopped working before you even tried it. lolz
+		local someExpeditions = false
+				
+		for i,el in ipairs(expeditions.locations) do
+			if el.assignees[1] then --if there's at least one assignee
+				--draw assignees
+				drawUnitIconsFromRIDListAt(el.assignees, 600, (expeditions.rowsAbove+i-1) * rh)
+				
+				--also print the location name, as a label
+				love.graphics.print(el.name, 600 + rh*8, (expeditions.rowsAbove+i) * rh)
+			
+				--and draw a little rectangle :)
+				love.graphics.rectangle("line", 600 + rh, (expeditions.rowsAbove+i) * rh, 6*rh, rh)
+				
+				someExpeditions = true
+			end
+		end
+		
+		--print the expeditions section label if appropriate
+		if someExpeditions then	
+			love.graphics.print("Expeditions:", 600, expeditions.rowsAbove * rh)
 		end
 	end
 end
@@ -189,8 +231,8 @@ function assignmentsKeyPressed(key)
 			}
 			
 			--TODO only add to menu if there are appropriate goals for the activity in the area? e.g. gathering points for Gather
-			for k,v in ipairs(world) do
-				submenu1[k] = v.name
+			for k,v in ipairs(expeditions.locations) do
+				submenu1[k] = v.name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
 			end
 			
 			-- assignUnitTo(unassignedIDs[1], activity.name)
@@ -217,14 +259,13 @@ function assignmentsKeyPressed(key)
 	
 	--submenu shit. kind of proof of concept for now
 	if submenu1.label then --again, hacky. clean up later TODO
-		if submenu1[tonumber(key)] then
+		if submenu1[tonumber(key)] then -- yikes. TODO
 			-- print("ping!")
-			assignUnitTo(unassignedIDs[1], submenu1.activity.name)
+			assignUnitTo(unassignedIDs[1], submenu1.activity.name, tonumber(key))
 			table.remove(unassignedIDs, 1)
 			submenu1 = {}
 		end
 	end
-	
 	
 	--DEBUG shit
 	if key == "\\" then
@@ -271,25 +312,51 @@ end
 
 
 
-function assignUnitTo(rosterIndex, activity, location)
+function assignUnitTo(rosterIndex, activity, locationID)
 	for k,ua in pairs(unitAssignments) do
+		-- find the right activity in ua, then...
 		if ua.name == activity then
-			table.insert(ua.locations[1], rosterIndex)--wrong TODO use actual locations, not just [1]
-			ua.count = ua.count + 1
-			print(rosterIndex..", "..roster[rosterIndex].name.." assigned to "..activity)
+			if ua.outside then
+				if locationID then
+					--...insert into the correct expedition location, NOT into ua. yes, this POC is stupid and needs to be refactored TODO
+					table.insert(expeditions.locations[locationID].assignees, rosterIndex)
+					--TODO limit to 6 units per expedition, i think?
+				else
+					print("i didn't get a locationID for this activity assignment...? bye")
+					love.event.quit()
+				end
+			else
+				--...insert this rosterIndex
+				table.insert(ua.locations[1], rosterIndex)--wrong TODO use actual locations, not just [1]
+				-- table.insert(ua.locations[locationID], rosterIndex)--wrong TODO use actual locations, not just [1]
+				ua.count = ua.count + 1
+				print(rosterIndex..", "..roster[rosterIndex].name.." assigned to "..activity)
+			end
 		end
 	end
 	
-	--now adjust all rows
+	--readjust adjust all row heights
+	calculateAssignmentRowCounts()
+	
+	-- tablePrint(unitAssignments)
+end
+
+--just tells UA rows + expeditions where they should draw
+function calculateAssignmentRowCounts()
 	local rowCount = math.ceil(#unassignedIDs / 16) + 1
+	local finalUARowCount = 0
+	
 	for k,a in pairs(unitAssignments) do
 		if a.count > 0 then
 			a.rowsAbove = rowCount + 1
-			rowCount = a.rowsAbove + math.ceil(a.count / 16) + 1
+			rowCount = a.rowsAbove + math.ceil(a.count / 16) --+ 1
 		end
+		
+		finalUARowCount = rowCount + 1
 	end
 	
-	-- tablePrint(unitAssignments)
+	--expeditions, last but not least
+	expeditions.rowsAbove = finalUARowCount	
 end
 
 -- function findDestinations(a)

@@ -73,6 +73,9 @@ speciesData = {
 	Moth = {
 		stats = {maxHP = 1, int = 4, str = 1, agl = 4},
 	},
+	-- Chicken = {
+	-- 	stats = {maxHP = 4, int = 1, str = 1, agl = 4},
+	-- },
 }
 
 --decoupling these from races because they will probably be moved around a lot
@@ -98,5 +101,6 @@ RS[17] = {name = "Silent Hunter", desc = "Does not draw attention from hostile n
 RS[18] = {name = "Copycat", desc = "Can copy combat skills from nearby allies."} --like all of them? is that broken?
 RS[19] = {name = "Trainable", desc = "Can learn additional racial skills from teachers."} --or just benefits more from training?
 RS[20] = {name = "Vespertine", desc = "Feeds on moonlight."} --only when lunar skills are used, or just 1/nutrition per month, or both?
-RS[21] = {name = "", desc = ""}
+RS[21] = {name = "Delicious", desc = "Makes for a good meal."} --leaves meat equal to sqrt(lvl) upon death
 RS[22] = {name = "", desc = ""}
+RS[23] = {name = "", desc = ""}
