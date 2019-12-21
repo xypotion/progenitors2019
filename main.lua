@@ -32,7 +32,7 @@ function love.load()
 	-- roster[1] = initUnit("Elephant")
 	roster[1] = initUnit(randomSpecies())
 		
-	for i = 2, 256 do 
+	for i = 2, 25 do 
 		-- roster[i] = initUnit("Snake")
 		-- roster[i] = initUnit("Elephant")
 		roster[i] = initUnit(randomSpecies(), roster[i-1])

@@ -88,7 +88,7 @@ RS[7] = {name = "Far-seeing", desc = "Very effective at scouting enemies."}
 RS[8] = {name = "Prolific", desc = "Takes less time to produce and raise offspring."}
 RS[9] = {name = "Hoarder", desc = "Good at preserving food."}
 RS[10] = {name = "Cute", desc = "Charms visitors at the gate."}
-RS[11] = {name = "Tough", desc = "Cannot be wounded."}
+RS[11] = {name = "Tough", desc = "Cannot be wounded."} --bears could maybe benefit more from potions? because they like honey...?
 RS[12] = {name = "Adaptive", desc = "Will permanently copy random alleles when working with others."}
 RS[13] = {name = "Sea Spy", desc = "Can investigate and evade danger easily in underwater areas."}
 RS[14] = {name = "Water Warrior", desc = "Can gather and evade danger easily in underwater areas."}

@@ -122,6 +122,13 @@ function assignmentsDraw()
 	
 	--draw activities menu
 	for k, a in ipairs(validActivities) do
+		--if are we also showing a submenu, make this one item yellow
+		if submenu1.activityID == k then
+			love.graphics.setColor(1,1,0)
+		else
+			white()
+		end
+		
 		love.graphics.print(a.key, 50, 165 + k * rh) --TODO make this look like a key
 		love.graphics.print(a.name, 80, 165 + k * rh)
 	end
@@ -156,12 +163,14 @@ end
 function assignmentsKeyPressed(key)
 	--TODO enable capital letters for auto-location-assignment
 	--TODO enable space for auto-assignment (or skip/"back of the line"?)
-	local activity = nil
+	local selectedActivity = nil
+	local selectedActivityID = nil
 
 	--did that key point to a real activity?
 	for k,a in pairs(validActivities) do
 		if a.key == key then
-			activity = a
+			selectedActivity = a
+			selectedActivityID = k
 			break
 		end
 	end
@@ -170,35 +179,46 @@ function assignmentsKeyPressed(key)
 	-- tablePrint(activity)
 	
 	--TODO submenus for locations, etc
-	if activity then
-		if activity.outside then
+	if selectedActivity then
+		if selectedActivity.outside then
 			--TODO make player choose an outside area
 			submenu1 = {
-				label = "Select outside area:",
-				activity = activity
+				label = "Select an outside destination for this activity:",
+				activity = selectedActivity,
+				activityID = selectedActivityID
 			}
 			
-			--TODO only add to menu if there are appropriate goals for the activity in the area
+			--TODO only add to menu if there are appropriate goals for the activity in the area? e.g. gathering points for Gather
 			for k,v in ipairs(world) do
 				submenu1[k] = v.name
 			end
-			
-			print("submenu1")
-			tablePrint(submenu1)
 			
 			-- assignUnitTo(unassignedIDs[1], activity.name)
 			-- table.remove(unassignedIDs, 1)
 		else
 			--TODO make player choose a room TODO unless it doesn't require a room, like Dig
 			print("pick a room:")
-			tablePrint(activity.candidateRoomIDs)
+			tablePrint(selectedActivity.candidateRoomIDs)
+			
+			submenu1 = {
+				label = "Select a room for this activity:",
+				activity = selectedActivity,
+				activityID = selectedActivityID
+			}
+
+			for k,v in ipairs(mountain.rooms) do
+				submenu1[k] = v.name
+			end
 		end
+			
+		print("submenu1")
+		tablePrint(submenu1)
 	end
 	
 	--submenu shit. kind of proof of concept for now
 	if submenu1.label then --again, hacky. clean up later TODO
 		if submenu1[tonumber(key)] then
-			print("ping!")
+			-- print("ping!")
 			assignUnitTo(unassignedIDs[1], submenu1.activity.name)
 			table.remove(unassignedIDs, 1)
 			submenu1 = {}
@@ -260,8 +280,8 @@ function assignUnitTo(rosterIndex, activity, location)
 		end
 	end
 	
-	--now adjust all rows; assume for now DEBUG that unassigned is unchanging
-	local rowCount = 3 --like this
+	--now adjust all rows
+	local rowCount = math.ceil(#unassignedIDs / 16) + 1
 	for k,a in pairs(unitAssignments) do
 		if a.count > 0 then
 			a.rowsAbove = rowCount + 1
