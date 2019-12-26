@@ -12,7 +12,7 @@ function love.load()
 	
 	love.graphics.setPointSize(2.5)
 		
-	f1 = love.graphics.setNewFont(20)
+	f1 = love.graphics.setNewFont(24)
 	f2 = love.graphics.newFont(10)
 	
 	--load images
@@ -310,4 +310,18 @@ function tableContains(table, item)
 	end
 	
 	return false
+end
+
+function tp(a, b)
+	tablePrint(a, b)
+end
+
+function ping(text)
+	if not text then text = "ping!" end
+	
+	print(text)
+end
+
+function setColor(r,g,b,a)
+	love.graphics.setColor(r,g,b,a)
 end

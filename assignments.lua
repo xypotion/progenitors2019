@@ -8,6 +8,20 @@ add locations & submenus
 		...so should candidate rooms be removed from validActivities as they fill up? and validActivities be removed if they run out of rooms?
   if outdoor activity, offer all areas
 limit assignments by location
+
+indoorAssigments
+expeditions
+other...
+
+or requiresRoom = t/f, requiresDestination, requiresPartner
+
+ugh, or just code them each individually? :/ it's not like there are that many
+
+maybe the best question is how all assignments will be *displayed*.
+- unassigned in a group
+- indoor assignments: all rooms, then which units plan to use those rooms. icons for activities?
+- expeditions: areas + units + activities
+
 show medals only sometimes. a toggle or something
 undo button
 reset button
@@ -34,25 +48,29 @@ function assignmentsStart()
 	--TODO you want to let player skip forward and backward through list, so re-implement "currentUnitIndex", lol
 
 	--what activities can actually be done?
+	--(is this actually necessary? TODO)
 	validActivities = {}
 	for k,a in pairs(activities) do
 		-- print(a.name)
 		
 		--is it an "outside" activity?
 		if a.outside then
+			--TODO only add if there's a valid goal for this activity, e.g. a PoA somewhere to Investigate
 			table.insert(validActivities, deepClone(a))
 		else
-			--if no, then check all rooms in mountain; find any valid ones? or is this an "always" activity? then add
+			--if no, then check all rooms in mountain; find any valid ones for it? or is this an "always" activity? then add
 			if a.validRooms or a.always then --slightly redundant TODO maybe refactor this whole block at some point
 				local validActivityRoomTypes = a.validRooms or {} --a little janky but meh
 				local validMountainRoomIDs = {}
 				
+				--are there any valid rooms for this activity?
 				for i,r in pairs(mountain.rooms) do
 					if tableContains(validActivityRoomTypes, r.type) then
 						table.insert(validMountainRoomIDs, i)
 					end
 				end
 				
+				--if any valid rooms were found, add them to this activity clone, then add that to validActivities
 				if validMountainRoomIDs[1] or a.always then
 					local va = deepClone(a)
 					va.candidateRoomIDs = deepClone(validMountainRoomIDs)
@@ -62,30 +80,22 @@ function assignmentsStart()
 		end
 	end
 	
-	-- tablePrint(validActivities)
-
-	--initialize unit assignments table
-	unitAssignments = {}
-
-	for i, a in ipairs(validActivities) do
-		unitAssignments[i] = {
-			name = a.name,
-			description = a.description,
-			locations = {{}}, --TODO DEBUG for now. eventually fill with valid locations
-			count = 0,
-			rowsAbove = 0,
-			outside = a.outside
-		}
-		--TODO also add valid rooms (with capacities) and world areas (? or those can be added later as units are assigned)
+	--initialize room-unit-assignment association table
+	roomAssignments = {}
+	for i, a in ipairs(mountain.rooms) do
+		roomAssignments[i] = {}
 	end
 	
-	--for outside stuff, which will be displayed separately
+	tablePrint(roomAssignments)
+	
+	--and init similar for outside stuff (displayed separately)
 	expeditions = {
-		rowsAbove = 0,
+		rowsAbove = 8,
 		locations = deepClone(world)
 	} 
 
 	--a bit janky, but let these cloney locations track their own assignees
+	--actually TODO i don't like these being janky clones! clean that table up.
 	for k,v in ipairs(expeditions.locations) do
 		v.assignees = {}
 	end
@@ -94,14 +104,6 @@ function assignmentsStart()
 	
 	submenu1 = {}
 	submenu2 = {}
-	
-	--find all destinations
-	-- allDestinations = {}
-	-- for k,a in pairs(validActivities) do
-	-- 	allDestinations[a] = findDestinations(a)
-	-- end
-	
-	-- tablePrint(allDestinations)
 	
 	-- tablePrint(roster[1])
 end
@@ -113,11 +115,10 @@ end
 --takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
 function drawUnitIconsFromRIDListAt(list, xOffset, yOffset)
 	for k, index in ipairs(list) do
-		-- if list[1] then
-		-- tablePrint(list)
-			drawUnitIcon(roster[index], xOffset + ((k - 1) % 16 + 1) * rh, yOffset + math.floor((k - 1) / 16 + 1) * rh)
-		-- end
+		drawUnitIcon(roster[index], xOffset + ((k - 1) % 16 + 1) * rh, yOffset + math.floor((k - 1) / 16 + 1) * rh)
 	end
+	
+	white()
 end 
 
 function assignmentsDraw()
@@ -128,13 +129,8 @@ function assignmentsDraw()
 	
 	--draw unassigned unit icons
 	love.graphics.print("Unassigned", 600, rh * 1)
-	-- for k, index in ipairs(unassignedIDs) do
-	-- 	drawUnitIcon(roster[index], 600 + ((k - 1) % 16 + 1) * 32, rh * 1 + math.floor((k - 1) / 16 + 1) * rh)
-	-- end
 	drawUnitIconsFromRIDListAt(unassignedIDs, 600, rh*1)
-	
-	white()
-	
+		
 	love.graphics.print("Select activity for this unit this month:", 50, 165)
 	
 	--draw activities menu
@@ -160,13 +156,25 @@ function assignmentsDraw()
 		end
 	end
 	
-	--draw assignments in locations
-	for k,ua in pairs(unitAssignments) do
-		if ua.count > 0 then 
-			-- love.graphics.print(k, 100 * ua.count, 500)
-			love.graphics.print(ua.name.." - "..ua.description, 600, ua.rowsAbove * rh)
-			drawUnitIconsFromRIDListAt(ua.locations[1], 600, ua.rowsAbove * (rh)) --TODO ua.locations is not being used correctly yet
+	--draw ROOMS, with their occupants & activities TODO
+	love.graphics.print("Indoor Assignments:", 600, rh * 4)
+	for i,r in ipairs(mountain.rooms) do --or should you loop over roomAssignments? could be cleaner, if that's a subset
+		-- if roomAssignments[i][1] then
+		-- 	setColor(1,0,0)
+		-- 	-- drawUnitIcon(roster[roomAssignments[i][1].rid], 700, 700)
+		-- else
+		-- 	white()
+		-- end
+		love.graphics.rectangle("line", 600 + rh, (i+4) * rh, rh*3, rh)
+		love.graphics.print(r.name, 600 + rh*5, (i+4) * rh)
+		
+		
+		--debug, kinda
+		local rids = {}
+		for k, ra in ipairs(roomAssignments[i]) do
+			rids[k] = ra.rid
 		end
+		drawUnitIconsFromRIDListAt(rids, 600, (i+3) * rh)
 	end
 	
 	--then draw expeditions if there are any pending
@@ -198,10 +206,6 @@ end
 
 
 
-
-
-
-
 function assignmentsKeyPressed(key)
 	--TODO enable capital letters for auto-location-assignment
 	--TODO enable space for auto-assignment (or skip/"back of the line"?)
@@ -220,7 +224,8 @@ function assignmentsKeyPressed(key)
 		
 	-- tablePrint(activity)
 	
-	--TODO submenus for locations, etc
+	--TODO switch on submenu state (or something even better) so only one of these blocks happens
+	--TODO generally clean up, refactor, move things out to other functions... as predicted, this function is getting super messy
 	if selectedActivity then
 		if selectedActivity.outside then
 			--TODO make player choose an outside area
@@ -234,9 +239,6 @@ function assignmentsKeyPressed(key)
 			for k,v in ipairs(expeditions.locations) do
 				submenu1[k] = v.name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
 			end
-			
-			-- assignUnitTo(unassignedIDs[1], activity.name)
-			-- table.remove(unassignedIDs, 1)
 		else
 			--TODO make player choose a room TODO unless it doesn't require a room, like Dig
 			print("pick a room:")
@@ -248,6 +250,7 @@ function assignmentsKeyPressed(key)
 				activityID = selectedActivityID
 			}
 
+			--add all rooms that have space...? TODO
 			for k,v in ipairs(mountain.rooms) do
 				submenu1[k] = v.name
 			end
@@ -260,8 +263,11 @@ function assignmentsKeyPressed(key)
 	--submenu shit. kind of proof of concept for now
 	if submenu1.label then --again, hacky. clean up later TODO
 		if submenu1[tonumber(key)] then -- yikes. TODO
-			-- print("ping!")
-			assignUnitTo(unassignedIDs[1], submenu1.activity.name, tonumber(key))
+			if submenu1.activity.outside then
+				assignUnitToExpedition(unassignedIDs[1], submenu1.activity.name, tonumber(key))
+			else
+				assignUnitToIndoorActivity(unassignedIDs[1], submenu1.activity.name, tonumber(key))
+			end
 			table.remove(unassignedIDs, 1)
 			submenu1 = {}
 		end
@@ -310,77 +316,37 @@ function assignmentsKeyPressed(key)
 	end
 end
 
-
-
-function assignUnitTo(rosterIndex, activity, locationID)
-	for k,ua in pairs(unitAssignments) do
-		-- find the right activity in ua, then...
-		if ua.name == activity then
-			if ua.outside then
-				if locationID then
-					--...insert into the correct expedition location, NOT into ua. yes, this POC is stupid and needs to be refactored TODO
-					table.insert(expeditions.locations[locationID].assignees, rosterIndex)
-					--TODO limit to 6 units per expedition, i think?
-				else
-					print("i didn't get a locationID for this activity assignment...? bye")
-					love.event.quit()
-				end
-			else
-				--...insert this rosterIndex
-				table.insert(ua.locations[1], rosterIndex)--wrong TODO use actual locations, not just [1]
-				-- table.insert(ua.locations[locationID], rosterIndex)--wrong TODO use actual locations, not just [1]
-				ua.count = ua.count + 1
-				print(rosterIndex..", "..roster[rosterIndex].name.." assigned to "..activity)
-			end
-		end
-	end
+--TODO the whole expeditions table should be simpler. just use area IDs, not clones?
+function assignUnitToExpedition(rosterIndex, activityID, areaID)
+	table.insert(expeditions.locations[areaID].assignees, rosterIndex)
 	
-	--readjust adjust all row heights
-	calculateAssignmentRowCounts()
+	-- calculateAssignmentRowCounts()
 	
-	-- tablePrint(unitAssignments)
+	ping("expeds")
+	tp(expeditions)
+end
+
+--TODO just split this into an indoor function and an outdoor function. much cleaner
+function assignUnitToIndoorActivity(rosterIndex, activityID, roomID)	
+	table.insert(roomAssignments[roomID], {rid = rosterIndex, aid = activityID})
+
+	-- calculateAssignmentRowCounts()
+	
+	ping("rooms")
+	tp(roomAssignments)
 end
 
 --just tells UA rows + expeditions where they should draw
+--TODO put this function back together... unassigned, then rooms, then expeds, then idle/other?
 function calculateAssignmentRowCounts()
 	local rowCount = math.ceil(#unassignedIDs / 16) + 1
 	local finalUARowCount = 0
 	
-	for k,a in pairs(unitAssignments) do
-		if a.count > 0 then
-			a.rowsAbove = rowCount + 1
-			rowCount = a.rowsAbove + math.ceil(a.count / 16) --+ 1
-		end
-		
+	for k,a in pairs(roomAssignments) do
 		finalUARowCount = rowCount + 1
 	end
 	
 	--expeditions, last but not least
-	expeditions.rowsAbove = finalUARowCount	
+	expeditions.rowsAbove = 8 --DEBUG
+	-- expeditions.rowsAbove = finalUARowCount
 end
-
--- function findDestinations(a)
--- 	d = {}
---
--- 	if a == "Train" then
--- 		d.space = world[1] --should always be foothills
---
--- 		--look at all rooms, finding Dojos
--- 		rn = 1 --"room number"
--- 		for k,r in pairs(mountain.rooms) do
--- 			if r.type == "Dojo" then
--- 				d[rn] = r
--- 				rn = rn + 1
--- 			end
--- 		end
--- 	end
---
--- 	return d
--- end
-
-
--- function drawAllUnits()
--- 	for k, v in pairs (roster) do
--- 		drawUnit(v, math.floor(k/20) * 150 + 10, 50 + (k % 20) * 20)
--- 	end
--- end

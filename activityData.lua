@@ -20,6 +20,7 @@ activities = {
 		validRooms = {"Empty"},
 		outside = false,
 		always = true,
+		--TODO this also needs to be drawn & assigned separately. separate constructions separate rooms, have "progress", can't be mixed, etc.
 	}, --rooms
 	{
 		key = 'd', name = "Dig", 
