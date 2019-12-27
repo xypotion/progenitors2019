@@ -36,6 +36,7 @@ actual assignement resolution...
 
 function assignmentsStart()	
 	rh = 34 --row height, in pixels
+	miniIconOffset = rh/2	
 	
 	--index unassigned units
 	unassignedIDs = {}
@@ -80,37 +81,30 @@ function assignmentsStart()
 		end
 	end
 	
-	--initialize room-unit-assignment association table
-	roomAssignments = {}
-	for i, a in ipairs(mountain.rooms) do
-		roomAssignments[i] = {}
-	end
+	--FOR CONSISTENCY:
+	--all of these "assignments" tables are lists of room IDs or area IDs (actually just straight-up clones of mountain.rooms and world)
+	--NUMERIC members of those tables are pairs of other IDs: the roster ID (for the unit) and the activity ID, i.e. ASSIGNMENTS
+		--...i hope this part doesn't bit me later. should be easy to add an "assignments" sub-table to each room/area list if needed
 	
-	tablePrint(roomAssignments)
+	--initialize room-unit-assignment association table. 
+	--i waffled on whether or not this cloney approach was good, and i decided that it was. so don't worry about it.
+	roomAssignments = deepClone(mountain.rooms)
 	
 	--and init similar for outside stuff (displayed separately)
-	expeditions = {
-		rowsAbove = 8,
-		locations = deepClone(world)
-	} 
-	
+	areaAssignments = deepClone(world)
+		
+	--and for things that don't require rooms/areas
 	otherAssignments = {
 		Dig = {},
-		Idle = {}
+		Idle = {} --i guess. i dunno.
 	}
 
-	--a bit janky, but let these cloney locations track their own assignees
-	--actually TODO i don't like these being janky clones! clean that table up.
-	for k,v in ipairs(expeditions.locations) do
-		v.assignees = {}
-	end
-
+	--where should things be drawn?
 	calculateAssignmentRowCounts()
 	
+	--and submenus for later
 	submenu1 = {}
 	submenu2 = {}
-	
-	-- tablePrint(roster[1])
 end
 
 function assignmentsUpdate(dt)
@@ -119,25 +113,32 @@ end
 
 --takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
 function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
-	local miniIconOffset = rh/2
-		
 	for k, rid in ipairs(ridList) do
 		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
 		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
-		
-		drawUnitIcon(roster[rid], xPos, yPos)
-				
-		if activityNames then
-			local activityIcon = images[activityNames[k]]
 
-			if activityIcon then --TODO checking for the icon should eventually not be necessary
-				love.graphics.draw(activityIcon, xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
-			end
+		drawUnitIcon(roster[rid], xPos, yPos)
+	end
+
+	white()
+end
+
+--takes a list of assignments (roster IDs + activity IDs), then draws them in a row starting at x,y
+--the activity ID is for drawing an icon :)
+function drawUnitIconsFromAssignmentListAt(assignmentList, xOffset, yOffset)	
+	for k, assignment in ipairs(assignmentList) do
+		local xPos = xOffset + k * rh
+		local yPos = yOffset
+		
+		drawUnitIcon(roster[assignment.rid], xPos, yPos)
+				
+		if images[assignment.aName] then --TODO checking for the icon should eventually not be necessary
+			love.graphics.draw(images[assignment.aName], xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
 		end
 	end
 	
 	white()
-end 
+end
 
 function assignmentsDraw()
 	--draw current unit summary, nice and big
@@ -166,63 +167,54 @@ function assignmentsDraw()
 	
 	white()
 	
-	--draw submenu1 if it's been populated
+	--draw assignments OR submenu1 if it's been populated
 	if submenu1.label then --a little hacky, but should work, right? maybe reconsider later on TODO
 		love.graphics.print(submenu1.label, 300, 200)
+		
+		--TODO move this? or something? whole right side of the screen can be the submenu. 
+		--will eventually have to make it fancier than just a list of things
 		
 		for k,v in ipairs(submenu1) do
 			love.graphics.print(k, 350, 200 + k * rh) --TODO make this look like a key
 			love.graphics.print(v, 380, 200 + k * rh)
 		end
+	else
+		drawRoomAndAreaAssignments()
 	end
-	
+end
+
+function drawRoomAndAreaAssignments()
 	--draw ROOMS, with their occupants & activities TODO
-	love.graphics.print("Indoor Assignments:", 600, rh * 4)
-	for i,r in ipairs(mountain.rooms) do --or should you loop over roomAssignments? could be cleaner, if that's a subset
-		love.graphics.rectangle("line", 600 + rh, (i+4) * rh, rh*3, rh)
-		love.graphics.print(r.name, 600 + rh*5, (i+4) * rh)
+	love.graphics.print("Indoor Assignments:", 600, roomAssignments.drawAtY)
+	for i,room in ipairs(roomAssignments) do
+		love.graphics.rectangle("line", 600 + rh, i * rh + roomAssignments.drawAtY, rh*3, rh) --TODO do this math elswhere
+		love.graphics.print(room.name, 600 + rh*5, i * rh + roomAssignments.drawAtY)
 		
-	
-		--debug, kinda. this works but MUST be refactored. TODO
-		local rids = {}
-		local aNames = {}
-		for k, ra in ipairs(roomAssignments[i]) do
-			rids[k] = ra.rid
-			aNames[k] = ra.aName
-		end
-		drawUnitIconsFromRIDListAt(rids, 600, (i+3) * rh, aNames)
+		drawUnitIconsFromAssignmentListAt(room, 600, i * rh + roomAssignments.drawAtY)
 	end
 	
 	--then draw expeditions if there are any pending
-	if expeditions.locations[1] then
-		local someExpeditions = false
-				
-		for i,el in ipairs(expeditions.locations) do
-			if el.assignees[1] then --if there's at least one assignee
-				--icon-scraping logic copy-pasted from rooms part above. again, must be refactored (because this is dumb) TODO
-				local aNames = {}
-				local rids = {}
-				for k, ra in ipairs(el.assignees) do
-					rids[k] = ra.rid
-					aNames[k] = ra.aName
-				end
-				--draw assignees
-				drawUnitIconsFromRIDListAt(rids, 600, (expeditions.rowsAbove+i-1) * rh, aNames)
-				
-				--also print the location name, as a label
-				love.graphics.print(el.name, 600 + rh*8, (expeditions.rowsAbove+i) * rh)
+	--TODO ha! this will probably be fixed soon, but this algo doesn't account for area #2 being selected and not #1. gotta loop better.
+	local someExpeditions = false
 			
-				--and draw a little rectangle :)
-				love.graphics.rectangle("line", 600 + rh, (expeditions.rowsAbove+i) * rh, 6*rh, rh)
-				
-				someExpeditions = true
-			end
-		end
+	for i,area in ipairs(areaAssignments) do
+		if area[1] then --if there's at least one assignee
+			--draw assignees with icons
+			drawUnitIconsFromAssignmentListAt(area, 600, i * rh + areaAssignments.drawAtY) --TODO this math, too
+			
+			--also print the location name, as a label
+			love.graphics.print(area.name, 600 + rh*8, i * rh + areaAssignments.drawAtY)
 		
-		--print the expeditions section label if appropriate
-		if someExpeditions then	
-			love.graphics.print("Expeditions:", 600, expeditions.rowsAbove * rh)
+			--and draw a little rectangle :)
+			love.graphics.rectangle("line", 600 + rh, i * rh + areaAssignments.drawAtY, 6*rh, rh)
+			
+			someExpeditions = true
 		end
+	end
+	
+	--print the expeditions section label if appropriate
+	if someExpeditions then	
+		love.graphics.print("Expeditions:", 600, areaAssignments.drawAtY)
 	end
 end
 
@@ -259,11 +251,11 @@ function assignmentsKeyPressed(key)
 			}
 			
 			--TODO only add to menu if there are appropriate goals for the activity in the area? e.g. gathering points for Gather
-			for k,v in ipairs(expeditions.locations) do
-				submenu1[k] = v.name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
+			for k,v in ipairs(areaAssignments) do
+				submenu1[k] = world[k].name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
 			end
 		else
-			--TODO make player choose a room TODO unless it doesn't require a room, like Dig
+			--TODO make player choose a room TODO unless it doesn't require a room, like Dig TODO
 			print("pick a room:")
 			tablePrint(selectedActivity.candidateRoomIDs)
 			
@@ -287,6 +279,7 @@ function assignmentsKeyPressed(key)
 	if submenu1.label then --again, hacky. clean up later TODO
 		if submenu1[tonumber(key)] then -- yikes. TODO
 			if submenu1.activity.outside then
+				-- ping("assigning?")
 				assignUnitToExpedition(unassignedIDs[1], submenu1.activity.name, tonumber(key))
 			else
 				assignUnitToIndoorActivity(unassignedIDs[1], submenu1.activity.name, tonumber(key))
@@ -341,35 +334,42 @@ end
 
 --TODO the whole expeditions table should be simpler. just use area IDs, not clones?
 function assignUnitToExpedition(rosterIndex, activityName, areaID)
-	table.insert(expeditions.locations[areaID].assignees, {rid = rosterIndex, aName = activityName})
+	table.insert(areaAssignments[areaID], {rid = rosterIndex, aName = activityName})
 	
-	-- calculateAssignmentRowCounts()
+	calculateAssignmentRowCounts()
 	
 	ping("expeds")
-	tp(expeditions)
+	tp(areaAssignments)
 end
 
 --TODO just split this into an indoor function and an outdoor function. much cleaner
 function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)	
 	table.insert(roomAssignments[roomID], {rid = rosterIndex, aName = activityName})
 
-	-- calculateAssignmentRowCounts()
+	calculateAssignmentRowCounts()
 	
 	ping("rooms")
 	tp(roomAssignments)
 end
 
---just tells UA rows + expeditions where they should draw
---TODO put this function back together... unassigned, then rooms, then expeds, then idle/other?
+--just tells different assignment sections where they should draw
 function calculateAssignmentRowCounts()
-	local rowCount = math.ceil(#unassignedIDs / 16) + 1
-	local finalUARowCount = 0
+	--unassigned is always at 0 (for now)
 	
-	for k,a in pairs(roomAssignments) do
-		finalUARowCount = rowCount + 1
+	--room assignments are below that
+	roomAssignments.drawAtY = (math.ceil(#unassignedIDs / 16) + 2) * rh
+	
+	--and expeditions are below rooms
+	areaAssignments.drawAtY = roomAssignments.drawAtY
+	local someIndoors = false
+
+	for k,room in ipairs(roomAssignments) do
+		if room[1] then
+			areaAssignments.drawAtY = areaAssignments.drawAtY + rh
+			someIndoors = true
+		end
 	end
 	
-	--expeditions, last but not least
-	expeditions.rowsAbove = 8 --DEBUG
-	-- expeditions.rowsAbove = finalUARowCount
+	--(add one more row if the indoor title will be drawn)
+	if someIndoors then areaAssignments.drawAtY = areaAssignments.drawAtY + rh end
 end
