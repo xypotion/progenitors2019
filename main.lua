@@ -21,6 +21,11 @@ function love.load()
 		Medal1 = love.graphics.newImage("Medal1.png"),
 		Medal2 = love.graphics.newImage("Medal2.png"),
 		Medal3 = love.graphics.newImage("Medal3.png"),
+		Dig = love.graphics.newImage("Dig.png"),
+		Gather = love.graphics.newImage("Gather.png"),
+		Investigate = love.graphics.newImage("Investigate.png"),
+		Mate = love.graphics.newImage("Mate.png"),
+		Cook = love.graphics.newImage("Preserve.png"),
 	}
 	for k,v in pairs(speciesData) do
 		images[k] = love.graphics.newImage(k..".png")

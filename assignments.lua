@@ -93,6 +93,11 @@ function assignmentsStart()
 		rowsAbove = 8,
 		locations = deepClone(world)
 	} 
+	
+	otherAssignments = {
+		Dig = {},
+		Idle = {}
+	}
 
 	--a bit janky, but let these cloney locations track their own assignees
 	--actually TODO i don't like these being janky clones! clean that table up.
@@ -113,9 +118,22 @@ function assignmentsUpdate(dt)
 end
 
 --takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
-function drawUnitIconsFromRIDListAt(list, xOffset, yOffset)
-	for k, index in ipairs(list) do
-		drawUnitIcon(roster[index], xOffset + ((k - 1) % 16 + 1) * rh, yOffset + math.floor((k - 1) / 16 + 1) * rh)
+function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
+	local miniIconOffset = rh/2
+		
+	for k, rid in ipairs(ridList) do
+		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
+		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
+		
+		drawUnitIcon(roster[rid], xPos, yPos)
+				
+		if activityNames then
+			local activityIcon = images[activityNames[k]]
+
+			if activityIcon then --TODO checking for the icon should eventually not be necessary
+				love.graphics.draw(activityIcon, xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
+			end
+		end
 	end
 	
 	white()
@@ -146,6 +164,8 @@ function assignmentsDraw()
 		love.graphics.print(a.name, 80, 165 + k * rh)
 	end
 	
+	white()
+	
 	--draw submenu1 if it's been populated
 	if submenu1.label then --a little hacky, but should work, right? maybe reconsider later on TODO
 		love.graphics.print(submenu1.label, 300, 200)
@@ -159,32 +179,35 @@ function assignmentsDraw()
 	--draw ROOMS, with their occupants & activities TODO
 	love.graphics.print("Indoor Assignments:", 600, rh * 4)
 	for i,r in ipairs(mountain.rooms) do --or should you loop over roomAssignments? could be cleaner, if that's a subset
-		-- if roomAssignments[i][1] then
-		-- 	setColor(1,0,0)
-		-- 	-- drawUnitIcon(roster[roomAssignments[i][1].rid], 700, 700)
-		-- else
-		-- 	white()
-		-- end
 		love.graphics.rectangle("line", 600 + rh, (i+4) * rh, rh*3, rh)
 		love.graphics.print(r.name, 600 + rh*5, (i+4) * rh)
 		
-		
-		--debug, kinda
+	
+		--debug, kinda. this works but MUST be refactored. TODO
 		local rids = {}
+		local aNames = {}
 		for k, ra in ipairs(roomAssignments[i]) do
 			rids[k] = ra.rid
+			aNames[k] = ra.aName
 		end
-		drawUnitIconsFromRIDListAt(rids, 600, (i+3) * rh)
+		drawUnitIconsFromRIDListAt(rids, 600, (i+3) * rh, aNames)
 	end
 	
 	--then draw expeditions if there are any pending
-	if expeditions.locations[1] then --TODO this line stopped working before you even tried it. lolz
+	if expeditions.locations[1] then
 		local someExpeditions = false
 				
 		for i,el in ipairs(expeditions.locations) do
 			if el.assignees[1] then --if there's at least one assignee
+				--icon-scraping logic copy-pasted from rooms part above. again, must be refactored (because this is dumb) TODO
+				local aNames = {}
+				local rids = {}
+				for k, ra in ipairs(el.assignees) do
+					rids[k] = ra.rid
+					aNames[k] = ra.aName
+				end
 				--draw assignees
-				drawUnitIconsFromRIDListAt(el.assignees, 600, (expeditions.rowsAbove+i-1) * rh)
+				drawUnitIconsFromRIDListAt(rids, 600, (expeditions.rowsAbove+i-1) * rh, aNames)
 				
 				--also print the location name, as a label
 				love.graphics.print(el.name, 600 + rh*8, (expeditions.rowsAbove+i) * rh)
@@ -317,8 +340,8 @@ function assignmentsKeyPressed(key)
 end
 
 --TODO the whole expeditions table should be simpler. just use area IDs, not clones?
-function assignUnitToExpedition(rosterIndex, activityID, areaID)
-	table.insert(expeditions.locations[areaID].assignees, rosterIndex)
+function assignUnitToExpedition(rosterIndex, activityName, areaID)
+	table.insert(expeditions.locations[areaID].assignees, {rid = rosterIndex, aName = activityName})
 	
 	-- calculateAssignmentRowCounts()
 	
@@ -327,8 +350,8 @@ function assignUnitToExpedition(rosterIndex, activityID, areaID)
 end
 
 --TODO just split this into an indoor function and an outdoor function. much cleaner
-function assignUnitToIndoorActivity(rosterIndex, activityID, roomID)	
-	table.insert(roomAssignments[roomID], {rid = rosterIndex, aid = activityID})
+function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)	
+	table.insert(roomAssignments[roomID], {rid = rosterIndex, aName = activityName})
 
 	-- calculateAssignmentRowCounts()
 	

@@ -9,19 +9,19 @@ activities = {
 		-- requiredFood = 1
 	},
 	{
-		key = 'b', name = "Bulk", 
-		description = "Consume a lot to get stronger; eat 2 extra food",
-		validRooms = {"Residence"},
-		outside = false,
-	}, --? i.e. bulk up (eat a lot more food, for growth)
-	{
-		key = 'c', name = "Construct", 
-		description = "Build or improve structures inside rooms",
+		key = 'b', name = "Build", 
+		description = "Build new structures, or improve or convert structures inside rooms",
 		validRooms = {"Empty"},
 		outside = false,
 		always = true,
 		--TODO this also needs to be drawn & assigned separately. separate constructions separate rooms, have "progress", can't be mixed, etc.
 	}, --rooms
+	{
+		key = 'c', name = "Cook", 
+		description = "Cook food to make it last longer",
+		validRooms = {"Kitchen"},
+		outside = false,
+	}, --food
 	{
 		key = 'd', name = "Dig", 
 		description = "Dig into the mountain to make more rooms",
@@ -29,6 +29,12 @@ activities = {
 		always = true,
 		-- validRooms = {}, --if not validRooms then just do it? or handle specially somehow
 	},
+	{
+		key = 'e', name = "Eat", 
+		description = "Consume a lot to get stronger; eat 2 extra food",
+		validRooms = {"Residence"},
+		outside = false,
+	}, --? i.e. bulk up (eat a lot more food, for growth)
 	-- {key = 'e', name = "Enlarge",
 	-- 	validRooms = {"Lab"},
 	-- }, --rooms
@@ -63,9 +69,9 @@ activities = {
 		outside = false,
 	},
 	{
-		key = 'p', name = "Preserve", 
-		description = "Cook food to make it last longer",
-		validRooms = {"Kitchen"},
+		key = 'p', name = "Pray", 
+		description = "",
+		validRooms = {"A shrine"},
 		outside = false,
 	}, --food
 	{
@@ -85,12 +91,13 @@ activities = {
 		validRooms = {"Entry"},
 		outside = false,
 	}, --? at the gate. "Greet" would be better...
-	{
-		key = 'x', name = "Empty", 
-		description = "Clear a room out and reclaim materials",
-		outside = false,
-		always = true,
-	}, --turn any room into an Empty room
+	-- {
+	-- 	key = 'x', name = "Empty",
+	-- 	description = "Clear a room out and reclaim materials",
+	-- 	outside = false,
+	-- 	always = true,
+	-- }, --turn any room into an Empty room. 
+	--should this maybe be an instant thing that the player can do? doesn't take time? OR just let rooms be converted into other rooms
 	{
 		key = 'z', name = "Idle", 
 		description = "Do nothing. Some residents will get bored.",
