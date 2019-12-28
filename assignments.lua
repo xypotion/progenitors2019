@@ -10,7 +10,6 @@ add locations & submenus
 limit assignments by location
 
 show medals only sometimes. a toggle or something
-undo button
 reset button
 show assignment info (duration, description, cost)
 for "expedition" assignments, show area info
@@ -23,6 +22,8 @@ actual assignement resolution...
 
 function assignmentsStart()	
 	rh = 34 --row height, in pixels
+	keyRectOffset = 4
+	keyRectSize = rh - keyRectOffset * 2
 	miniIconOffset = rh/2	
 	
 	assignmentUndoStack = {}
@@ -100,35 +101,6 @@ function assignmentsUpdate(dt)
 	-- TODO animations or something? lol
 end
 
---takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
-function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
-	for k, rid in ipairs(ridList) do
-		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
-		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
-
-		drawUnitIcon(roster[rid], xPos, yPos)
-	end
-
-	white()
-end
-
---takes a list of assignments (roster IDs + activity IDs), then draws them in a row starting at x,y
---the activity ID is for drawing an icon :)
-function drawUnitIconsFromAssignmentListAt(assignmentList, xOffset, yOffset)	
-	for k, assignment in ipairs(assignmentList) do
-		local xPos = xOffset + k * rh
-		local yPos = yOffset
-		
-		drawUnitIcon(roster[assignment.rid], xPos, yPos)
-				
-		if images[assignment.aName] then --TODO checking for the icon should eventually not be necessary
-			love.graphics.draw(images[assignment.aName], xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
-		end
-	end
-	
-	white()
-end
-
 function assignmentsDraw()
 	--draw current unit summary, nice and big
 	drawUnitSummary(roster[unassignedIDs[1]], 50, 50)
@@ -139,19 +111,19 @@ function assignmentsDraw()
 	love.graphics.print("Unassigned", 600, rh * 1)
 	drawUnitIconsFromRIDListAt(unassignedIDs, 600, rh*1)
 		
-	love.graphics.print("Select activity for this unit this month:", 50, 165)
+	love.graphics.print("Select activity for this unit this month:", rh, 5 * rh)
 	
 	--draw activities menu
 	for k, a in ipairs(validActivities) do
-		--if are we also showing a submenu, make this one item yellow
+		drawKeyboardKey(a.key, rh, 165 + k * rh)
+
+		--if are we currently showing a submenu, make this one item yellow
 		if submenu1.activityID == k then
 			love.graphics.setColor(1,1,0)
 		else
 			white()
 		end
-		
-		love.graphics.print(a.key, 50, 165 + k * rh) --TODO make this look like a key
-		love.graphics.print(a.name, 80, 165 + k * rh)
+		love.graphics.print(a.name, rh*2, 165 + k * rh)
 	end
 	
 	white()
@@ -161,15 +133,25 @@ function assignmentsDraw()
 		love.graphics.print(submenu1.label, 300, 200)
 		
 		--TODO move this? or something? whole right side of the screen can be the submenu. 
-		--will eventually have to make it fancier than just a list of things
+		--will eventually have to make it a lot fancier than just a list of things
 		
 		for k,v in ipairs(submenu1) do
-			love.graphics.print(k, 350, 200 + k * rh) --TODO make this look like a key
-			love.graphics.print(v, 380, 200 + k * rh)
+			drawKeyboardKey(k, rh * 9, (6 + k) * rh)
+			love.graphics.print(v, rh * 10, (6 + k) * rh)
 		end
 	else
 		drawRoomAndAreaAssignments()
 	end
+end
+
+function drawKeyboardKey(text, x, y)
+	setColor(0.75,0.75,0.75)
+	love.graphics.rectangle("fill", x + keyRectOffset, y + keyRectOffset, keyRectSize, keyRectSize)
+	
+	setColor(0,0,0)
+	love.graphics.printf(" "..text, f2, x - keyRectOffset, y + keyRectOffset, rh, "center")
+	
+	white()
 end
 
 function drawRoomAndAreaAssignments()
@@ -223,6 +205,36 @@ function drawRoomAndAreaAssignments()
 	
 	--TODO or TODONT: refactor this so one method draws both indoor and outdoor activities. will they always be so similar?
 end
+
+--takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
+function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
+	for k, rid in ipairs(ridList) do
+		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
+		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
+
+		drawUnitIcon(roster[rid], xPos, yPos)
+	end
+
+	white()
+end
+
+--takes a list of assignments (roster IDs + activity IDs), then draws them in a row starting at x,y
+--the activity ID is for drawing an icon :)
+function drawUnitIconsFromAssignmentListAt(assignmentList, xOffset, yOffset)	
+	for k, assignment in ipairs(assignmentList) do
+		local xPos = xOffset + k * rh
+		local yPos = yOffset
+		
+		drawUnitIcon(roster[assignment.rid], xPos, yPos)
+				
+		if images[assignment.aName] then --TODO checking for the icon should eventually not be necessary
+			love.graphics.draw(images[assignment.aName], xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
+		end
+	end
+	
+	white()
+end
+
 
 
 

@@ -13,7 +13,7 @@ function love.load()
 	love.graphics.setPointSize(2.5)
 		
 	f1 = love.graphics.setNewFont(24)
-	f2 = love.graphics.newFont(10)
+	f2 = love.graphics.newFont(20)
 	
 	--load images
 	images = {

@@ -73,9 +73,9 @@ speciesData = {
 	Moth = {
 		stats = {maxHP = 1, int = 4, str = 1, agl = 4},
 	},
-	-- Chicken = {
-	-- 	stats = {maxHP = 4, int = 1, str = 1, agl = 4},
-	-- },
+	Chicken = {
+		stats = {maxHP = 4, int = 1, str = 1, agl = 4},
+	},
 }
 
 --decoupling these from races because they will probably be moved around a lot
