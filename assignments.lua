@@ -184,36 +184,49 @@ function assignmentsDraw()
 end
 
 function drawRoomAndAreaAssignments()
-	--draw ROOMS, with their occupants & activities TODO
-	love.graphics.print("Indoor Assignments:", 600, roomAssignments.drawAtY)
+	--draw ROOMS with their occupants & activities
+	local rowNumber = 0
+			
 	for i,room in ipairs(roomAssignments) do
-		love.graphics.rectangle("line", 600 + rh, i * rh + roomAssignments.drawAtY, rh*3, rh) --TODO do this math elswhere
-		love.graphics.print(room.name, 600 + rh*5, i * rh + roomAssignments.drawAtY)
+		if room[1] then --if there's at least one assignee
+			rowNumber = rowNumber + 1
+			
+			--draw assignees with icons
+			drawUnitIconsFromAssignmentListAt(room, 600, rowNumber * rh + roomAssignments.drawAtY) --TODO this math, too
+			
+			--also print the room name, as a label
+			love.graphics.print(room.name, 600 + rh*8, rowNumber * rh + roomAssignments.drawAtY)
 		
-		drawUnitIconsFromAssignmentListAt(room, 600, i * rh + roomAssignments.drawAtY)
+			--and draw a little rectangle :)
+			love.graphics.rectangle("line", 600 + rh, rowNumber * rh + roomAssignments.drawAtY, room.capacity * rh, rh)
+		end
 	end
 	
-	--then draw expeditions if there are any pending
-	--TODO ha! this will probably be fixed soon, but this algo doesn't account for area #2 being selected and not #1. gotta loop better.
-	local someExpeditions = false
+	--print the indoor assignments section label if appropriate
+	if rowNumber > 0 then	
+		love.graphics.print("Indoor Assignments:", 600, roomAssignments.drawAtY)
+	end
+	
+	--then draw EXPEDITIONS if there are any pending
+	rowNumber = 0
 			
 	for i,area in ipairs(areaAssignments) do
 		if area[1] then --if there's at least one assignee
+			rowNumber = rowNumber + 1
+			
 			--draw assignees with icons
-			drawUnitIconsFromAssignmentListAt(area, 600, i * rh + areaAssignments.drawAtY) --TODO this math, too
+			drawUnitIconsFromAssignmentListAt(area, 600, rowNumber * rh + areaAssignments.drawAtY) --TODO this math, too
 			
 			--also print the location name, as a label
-			love.graphics.print(area.name, 600 + rh*8, i * rh + areaAssignments.drawAtY)
+			love.graphics.print(area.name, 600 + rh*8, rowNumber * rh + areaAssignments.drawAtY)
 		
-			--and draw a little rectangle :)
-			love.graphics.rectangle("line", 600 + rh, i * rh + areaAssignments.drawAtY, 6*rh, rh)
-			
-			someExpeditions = true
+			--and draw a little rectangle!
+			love.graphics.rectangle("line", 600 + rh, rowNumber * rh + areaAssignments.drawAtY, 6 * rh, rh)
 		end
 	end
 	
 	--print the expeditions section label if appropriate
-	if someExpeditions then	
+	if rowNumber > 0 then	
 		love.graphics.print("Expeditions:", 600, areaAssignments.drawAtY)
 	end
 end
