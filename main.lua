@@ -92,15 +92,19 @@ function love.draw()
 	-- drawUnit(roster[1], 100, 300)
 end
 
+function love.textinput(t)
+	_G[phase.."TextInput"](t)
+end
+
 function love.keypressed(key)
 	if key == "escape" then
 		love.event.quit()
 	end
 	
+	-- print(key)
+	
 	_G[phase.."KeyPressed"](key)
 end
-
-
 
 
 

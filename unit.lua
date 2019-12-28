@@ -193,6 +193,8 @@ function drawUnitSummary(u, xOffset, yOffset)
 	
 	--draw genome
 	drawGenome(u.genome, xOffset + 300, yOffset - 50)
+	
+	white()
 end
 
 function drawUnitIcon(u, xOffset, yOffset)
@@ -214,6 +216,35 @@ function drawUnitIcon(u, xOffset, yOffset)
 	if u.bestMedal then
 		love.graphics.draw(images["Medal"..u.bestMedal], xOffset + 16, yOffset, 0, 0.125, 0.125)
 	end
+end
+
+--takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
+function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
+	for k, rid in ipairs(ridList) do
+		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
+		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
+
+		drawUnitIcon(roster[rid], xPos, yPos)
+	end
+
+	white()
+end
+
+--takes a list of assignments (roster IDs + activity IDs), then draws them in a row starting at x,y
+--the activity ID is for drawing an icon :)
+function drawUnitIconsFromAssignmentListAt(assignmentList, xOffset, yOffset)	
+	for k, assignment in ipairs(assignmentList) do
+		local xPos = xOffset + k * rh
+		local yPos = yOffset
+		
+		drawUnitIcon(roster[assignment.rid], xPos, yPos)
+				
+		if images[assignment.aName] then --TODO checking for the icon should eventually not be necessary
+			love.graphics.draw(images[assignment.aName], xPos + miniIconOffset, yPos + miniIconOffset, 0, 0.125, 0.125)
+		end
+	end
+	
+	white()
 end
 
 function drawGenome(g, xOffset, yOffset)
