@@ -37,7 +37,7 @@ function love.load()
 	-- roster[1] = initUnit("Elephant")
 	roster[1] = initUnit(randomSpecies())
 		
-	for i = 2, 125 do 
+	for i = 2, 130 do 
 		-- roster[i] = initUnit("Snake")
 		-- roster[i] = initUnit("Elephant")
 		roster[i] = initUnit(randomSpecies(), roster[i-1])
@@ -257,6 +257,13 @@ areaData = {
 		enemies = {}
 	},
 }
+
+-- not sure if this is even necessary, but eh
+function stackPop(stack)
+	local item = table.remove(stack)
+	
+	return item
+end
 
 -- copied from https://stackoverflow.com/questions/2421695/first-character-uppercase-lua
 function firstToUpper(str)

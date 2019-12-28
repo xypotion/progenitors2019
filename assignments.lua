@@ -9,19 +9,6 @@ add locations & submenus
   if outdoor activity, offer all areas
 limit assignments by location
 
-indoorAssigments
-expeditions
-other...
-
-or requiresRoom = t/f, requiresDestination, requiresPartner
-
-ugh, or just code them each individually? :/ it's not like there are that many
-
-maybe the best question is how all assignments will be *displayed*.
-- unassigned in a group
-- indoor assignments: all rooms, then which units plan to use those rooms. icons for activities?
-- expeditions: areas + units + activities
-
 show medals only sometimes. a toggle or something
 undo button
 reset button
@@ -37,6 +24,8 @@ actual assignement resolution...
 function assignmentsStart()	
 	rh = 34 --row height, in pixels
 	miniIconOffset = rh/2	
+	
+	assignmentUndoStack = {}
 	
 	--index unassigned units
 	unassignedIDs = {}
@@ -306,6 +295,11 @@ function assignmentsKeyPressed(key)
 		end
 	end
 	
+	--undo
+	if key == "backspace" then
+		undoLastAssignment()
+	end
+	
 	--DEBUG shit
 	if key == "\\" then
 		print("\\ - all units without medals assigned to Idle")
@@ -349,24 +343,58 @@ function assignmentsKeyPressed(key)
 	end
 end
 
---TODO the whole expeditions table should be simpler. just use area IDs, not clones?
 function assignUnitToExpedition(rosterIndex, activityName, areaID)
 	table.insert(areaAssignments[areaID], {rid = rosterIndex, aName = activityName})
 	
 	calculateAssignmentRowCounts()
 	
-	ping("expeds")
-	tp(areaAssignments)
+	--trace this in the undo stack
+	table.insert(assignmentUndoStack, {
+		f = "assignUnitToExpedition", 
+		-- rosterIndex = rosterIndex, --wow, even this is not necessary?
+		-- activityName = activityName, --i think not necessary?
+		areaID = areaID,
+		-- assignmentPos = table.getn(areaAssignments[areaID])  --also not necessary
+	})
 end
 
---TODO just split this into an indoor function and an outdoor function. much cleaner
 function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)	
 	table.insert(roomAssignments[roomID], {rid = rosterIndex, aName = activityName})
 
 	calculateAssignmentRowCounts()
 	
-	ping("rooms")
-	tp(roomAssignments)
+	table.insert(assignmentUndoStack, {
+		f = "assignUnitToIndoorActivity", 
+		roomID = roomID,
+	})
+end
+
+--you're making a lot of assumptions about where IDs will land in assignment tables. they're ALL simple stacks for now...
+--fortunately, i don't think it will be hard to make these functions smarter later if necessary
+function undoLastAssignment()
+	if not assignmentUndoStack[1] then
+		print("nothing to undo, yo")
+		return
+	end
+	
+	local undoStep = stackPop(assignmentUndoStack)
+	
+	if undoStep.f == "assignUnitToExpedition" then
+		--take last area asssignee and move them back to unassigned IDs
+		-- undoStep.assignmentPos --maybe not needed, after all
+		local undoneAssignment = table.remove(areaAssignments[undoStep.areaID])
+		table.insert(unassignedIDs, 1, undoneAssignment.rid)
+	elseif undoStep.f == "assignUnitToIndoorActivity" then
+		local undoneAssignment = table.remove(roomAssignments[undoStep.roomID])
+		table.insert(unassignedIDs, 1, undoneAssignment.rid)
+	end
+	
+	--and recalc rows in case they need to shift
+	calculateAssignmentRowCounts()
+end
+
+function redoLastUndoneAssignment()
+	--TODO
 end
 
 --just tells different assignment sections where they should draw
