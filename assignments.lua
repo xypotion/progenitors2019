@@ -190,15 +190,16 @@ function drawRoomAndAreaAssignments()
 	for i,room in ipairs(roomAssignments) do
 		if room[1] then --if there's at least one assignee
 			rowNumber = rowNumber + 1
+			local yPos = rowNumber * rh + roomAssignments.drawAtY
 			
 			--draw assignees with icons
-			drawUnitIconsFromAssignmentListAt(room, 600, rowNumber * rh + roomAssignments.drawAtY) --TODO this math, too
+			drawUnitIconsFromAssignmentListAt(room, 600, yPos) 
 			
 			--also print the room name, as a label
-			love.graphics.print(room.name, 600 + rh*8, rowNumber * rh + roomAssignments.drawAtY)
+			love.graphics.print(room.name, 600 + rh*8, yPos)
 		
 			--and draw a little rectangle :)
-			love.graphics.rectangle("line", 600 + rh, rowNumber * rh + roomAssignments.drawAtY, room.capacity * rh, rh)
+			love.graphics.rectangle("line", 600 + rh, yPos, room.capacity * rh, rh)
 		end
 	end
 	
@@ -213,15 +214,16 @@ function drawRoomAndAreaAssignments()
 	for i,area in ipairs(areaAssignments) do
 		if area[1] then --if there's at least one assignee
 			rowNumber = rowNumber + 1
+			local yPos = rowNumber * rh + areaAssignments.drawAtY
 			
 			--draw assignees with icons
-			drawUnitIconsFromAssignmentListAt(area, 600, rowNumber * rh + areaAssignments.drawAtY) --TODO this math, too
+			drawUnitIconsFromAssignmentListAt(area, 600, yPos)
 			
 			--also print the location name, as a label
-			love.graphics.print(area.name, 600 + rh*8, rowNumber * rh + areaAssignments.drawAtY)
+			love.graphics.print(area.name, 600 + rh*8, yPos)
 		
 			--and draw a little rectangle!
-			love.graphics.rectangle("line", 600 + rh, rowNumber * rh + areaAssignments.drawAtY, 6 * rh, rh)
+			love.graphics.rectangle("line", 600 + rh, yPos, 6 * rh, rh)
 		end
 	end
 	
@@ -229,6 +231,8 @@ function drawRoomAndAreaAssignments()
 	if rowNumber > 0 then	
 		love.graphics.print("Expeditions:", 600, areaAssignments.drawAtY)
 	end
+	
+	--TODO or TODONT: refactor this so one method draws both indoor and outdoor activities. will they always be so similar?
 end
 
 
