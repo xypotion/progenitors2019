@@ -1,5 +1,7 @@
 --units with all empty slots should be white, units with no slots (pretty rare) should be black
 
+-- long list menus... you should paginate. use [ and ] to skip pages? 
+
 require "assignments"
 require "unit"
 require "activityData"
@@ -47,7 +49,8 @@ function love.load()
 	-- roster[3] = deepClone(roster[1])--debug
 	-- roster[5] = deepClone(roster[1])--debug
 	
-	findHighestStatsAmongLivingUnits()
+	--for assigning medals. cool but not important for now
+	-- findHighestStatsAmongLivingUnits()
 	
 	-- roster[1] = initUnit("foo")
 	-- print(roster[1].name)
@@ -106,7 +109,7 @@ function love.keypressed(key)
 	_G[phase.."KeyPressed"](key)
 end
 
-
+---------------------------------------------------------------------------------------------------
 
 
 function findHighestStatsAmongLivingUnits()

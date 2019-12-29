@@ -15,7 +15,11 @@ activities = {
 		outside = false,
 		always = true,
 		--TODO this also needs to be drawn & assigned separately. separate constructions separate rooms, have "progress", can't be mixed, etc.
-	}, --rooms
+		--i think each room will have a "construction" attribute with "new room" and "progress". building can just continue that OR cancel it
+		--when you select this activity, the next choice is (1) build a new room, (2) improve a room, or (3) help other (show that first?)
+			--that list can be long, so prepare to paginate :/
+			--this menu is actually going to be pretty complicated! maybe come back to it later
+	},
 	{
 		key = 'c', name = "Cook", 
 		description = "Cook food to make it last longer",
@@ -67,6 +71,8 @@ activities = {
 		description = "Pray for children with another resident. Takes time.",
 		validRooms = {"Residence", "A shrine"},
 		outside = false,
+		--submenu here should be fairly easy, at least at a basic level (i.e. not showing family members, previous mates, etc)
+		--ah, and don't forget about sample children. that'll have to be another layer later, after skills are implemented
 	},
 	{
 		key = 'p', name = "Pray", 

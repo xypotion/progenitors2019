@@ -4,15 +4,15 @@ function assignmentsDraw()
 		
 	drawUnassignedUnits()
 	
-	if state == "main" then
+	if STATE == "main" then
 		drawActivitiesMenu()
 		
 		drawRoomAndAreaAssignments()
-	elseif state == "select room" or state == "select area" then
+	elseif STATE == "select room" or STATE == "select area" then
 		drawActivitiesMenu()
 		drawLocationSubmenu()
-	elseif state == "select mate" then
-	elseif state == "something" then
+	elseif STATE == "select mate" then
+	elseif STATE == "something" then
 	end
 end
 

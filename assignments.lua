@@ -99,8 +99,8 @@ function assignmentsStart()
 	submenu2 = {}
 	
 	--trying this to keep menu input+draw logic a little more organized
-	state = "main"
-	--other valid states: select room/area/mate/sort/product/structure, help/info, confirm assignments, etc
+	STATE = "main"
+	--other valid STATEs: select room/area/mate/sort/product/structure, help/info, confirm assignments, etc
 end
 
 function assignmentsUpdate(dt)
@@ -110,74 +110,84 @@ end
 function assignmentsKeyPressed(key)
 	--undo or cancel
 	if key == "backspace" then
-		if state == "main" then
+		if STATE == "main" then
 			undoLastAssignment()
-		elseif state == "select room" or state == "select area" then
+		elseif STATE == "select room" or STATE == "select area" then
 			submenu1 = {}
-			state = "main"
-		elseif state == "select mate" then
+			STATE = "main"
+		elseif STATE == "select mate" then
+			--might be harder than above. TODO
 		end
 	end
 end
 
 function assignmentsTextInput(key)
-	if state == "main" then
-		--TODO enable capital letters for auto-location-assignment
-		--TODO enable space for auto-assignment (or skip/"back of the line"?)
-		local selectedActivity = nil
-		local selectedActivityID = nil
-
-		--did that key point to a real activity?
-		for k,a in pairs(validActivities) do
-			if a.key == key then
-				selectedActivity = a
-				selectedActivityID = k
-				break
-			end
-		end
-		-- if not activity then return end
-		
-		-- tablePrint(activity)
+	processActivityDebugInput(key)
 	
-		--TODO switch on submenu state (or something even better) so only one of these blocks happens
-		--TODO generally clean up, refactor, move things out to other functions... as predicted, this function is getting super messy
-		if selectedActivity then
-			if selectedActivity.outside then
-				state = "select area"
-				submenu1 = {
-					label = "Select an outside destination for this activity:",
-					activity = selectedActivity,
-					activityID = selectedActivityID
-				}
-			
-				--TODO only add to menu if there are appropriate goals for the activity in the area? e.g. gathering points for Gather
-				for k,v in ipairs(areaAssignments) do
-					submenu1[k] = world[k].name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
-				end
-			else
-				--TODO make player choose a room TODO unless it doesn't require a room, like Dig TODO
-				-- print("pick a room:")
-				-- tablePrint(selectedActivity.candidateRoomIDs)
-				state = "select room"
-				submenu1 = {
-					label = "Select a room for this activity:",
-					activity = selectedActivity,
-					activityID = selectedActivityID
-				}
+	if STATE == "main" then
+		processActivityMainMenuInput(key)
+	elseif STATE == "select room" or STATE == "select area" then
+		processActivitySimpleSubmenuInput(key)
+	elseif STATE == "select mate" then
+	end
+end
+		
+---------------------------------------------------------------------------------------------------
+		
+function processActivityMainMenuInput(key)
+	--TODO enable capital letters for auto-location-assignment
+	--TODO enable space for auto-assignment (or skip/"back of the line"?)
+	local selectedActivity = nil
+	local selectedActivityID = nil
 
-				--add all rooms that have space...? TODO
-				for k,v in ipairs(mountain.rooms) do
-					submenu1[k] = v.name
-				end
-			end
-			
-			print("submenu1")
-			tablePrint(submenu1)
+	--did that key point to a real activity?
+	for k,a in pairs(validActivities) do
+		if a.key == key then
+			selectedActivity = a
+			selectedActivityID = k
+			break
 		end
 	end
-	
+				
+	--TODO switch on submenu STATE (or something even better) so only one of these blocks happens
+	--TODO generally clean up, refactor, move things out to other functions... as predicted, this function is getting super messy
+	if selectedActivity then
+		if selectedActivity.outside then
+			STATE = "select area"
+			submenu1 = {
+				label = "Select an outside destination for this activity:",
+				activity = selectedActivity,
+				activityID = selectedActivityID
+			}
+		
+			--TODO only add to menu if there are appropriate goals for the activity in the area? e.g. gathering points for Gather
+			for k,v in ipairs(areaAssignments) do
+				submenu1[k] = world[k].name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
+			end
+		else
+			--TODO make player choose a room TODO unless it doesn't require a room, like Dig TODO
+			-- print("pick a room:")
+			-- tablePrint(selectedActivity.candidateRoomIDs)
+			STATE = "select room"
+			submenu1 = {
+				label = "Select a room for this activity:",
+				activity = selectedActivity,
+				activityID = selectedActivityID
+			}
+
+			--add all rooms that have space...? TODO
+			for k,v in ipairs(mountain.rooms) do
+				submenu1[k] = v.name
+			end
+		end
+		
+		print("submenu1")
+		tablePrint(submenu1)
+	end
+end
+
+function processActivitySimpleSubmenuInput(key)
 	--submenu shit. kind of proof of concept for now
-	if state == "select room" or state == "select area" then
 		if submenu1[tonumber(key)] then -- yikes. TODO
 			if submenu1.activity.outside then
 				-- ping("assigning?")
@@ -187,11 +197,13 @@ function assignmentsTextInput(key)
 			end
 			table.remove(unassignedIDs, 1)
 			submenu1 = {}
-			state = "main"
+			STATE = "main"
 			ping("back to main")
 		end
-	end
+	-- end
+end
 	
+function processActivityDebugInput(key)
 	--DEBUG shit
 	if key == "\\" then
 		print("\\ - all units without medals assigned to Idle")
@@ -234,6 +246,7 @@ function assignmentsTextInput(key)
 		love.load()
 	end
 end
+
 
 function assignUnitToExpedition(rosterIndex, activityName, areaID)
 	table.insert(areaAssignments[areaID], {rid = rosterIndex, aName = activityName})
