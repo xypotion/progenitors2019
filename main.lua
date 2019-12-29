@@ -171,7 +171,7 @@ end
 
 
 
-
+changeInDigDifficulty = 10
 
 function initMountain()
 	local m = {}
@@ -181,6 +181,9 @@ function initMountain()
 		initRoom("Residence"),
 		initRoom("Storage"),
 	}
+	
+	m.digProgress = 0 --starting simple with this. just used to track partial dig progress.
+	--also, digging should get harder the more rooms you have; just a factor of changeInDigDifficulty and #rooms
 	
 	return m
 end

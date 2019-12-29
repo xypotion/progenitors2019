@@ -8,6 +8,8 @@ function assignmentsDraw()
 		drawActivitiesMenu()
 		
 		drawRoomAndAreaAssignments()
+		
+		drawOtherAssignments()
 	elseif STATE == "select room" or STATE == "select area" then
 		drawActivitiesMenu()
 		drawLocationSubmenu()
@@ -17,11 +19,14 @@ function assignmentsDraw()
 end
 
 ---------------------------------------------------------------------------------------------------
+--eventually you'll need to paginate assignment drawing. just say "page n/m" at the top, and let player page through with [ ] TODO
 
 function drawUnassignedUnits()
 	--draw unassigned unit icons
-	love.graphics.print("Unassigned", 600, rh * 1)
-	drawUnitIconsFromRIDListAt(unassignedIDs, 600, rh*1)
+	if unassignedIDs[1] then
+		love.graphics.print("Unassigned", 600, rh * 1)
+		drawUnitIconsFromRIDListAt(unassignedIDs, 600, rh*1)
+	end
 		
 	love.graphics.print("Select activity for this unit this month:", rh, 5 * rh)
 end
@@ -93,6 +98,14 @@ function drawRoomAndAreaAssignments()
 	end
 	
 	--TODO or TODONT: refactor this so one method draws both indoor and outdoor activities. will they always be so similar?
+end
+
+function drawOtherAssignments()	
+	--draw Digging units
+	if otherAssignments.Dig[1] then
+		love.graphics.print("Dig:", 600, otherAssignments.Dig.drawAtY)
+		drawUnitIconsFromAssignmentListAt(otherAssignments.Dig, 600, otherAssignments.Dig.drawAtY + rh)	
+	end
 end
 
 ---------------------------------------------------------------------------------------------------

@@ -87,8 +87,8 @@ function assignmentsStart()
 		
 	--and for things that don't require rooms/areas
 	otherAssignments = {
-		Dig = {},
-		Idle = {} --i guess. i dunno.
+		Dig = {drawAtY = 0},
+		Idle = {} --TODO i dunno. do they need rooms to do this in or not? leaning yes, so maybe just make this a normal indoor activity
 	}
 
 	--where should things be drawn?
@@ -149,10 +149,12 @@ function processActivityMainMenuInput(key)
 		end
 	end
 				
-	--TODO switch on submenu STATE (or something even better) so only one of these blocks happens
 	--TODO generally clean up, refactor, move things out to other functions... as predicted, this function is getting super messy
 	if selectedActivity then
-		if selectedActivity.outside then
+		if selectedActivity.name == "Dig" then --sloppy but whatever. a lot of this is. maybe clean up later TODO
+			assignUnitToOtherActivity(unassignedIDs[1], selectedActivity.name)
+			table.remove(unassignedIDs, 1)
+		elseif selectedActivity.outside then
 			STATE = "select area"
 			submenu1 = {
 				label = "Select an outside destination for this activity:",
@@ -164,10 +166,10 @@ function processActivityMainMenuInput(key)
 			for k,v in ipairs(areaAssignments) do
 				submenu1[k] = world[k].name --TODO couldn't you just load the submenu with the objects and then print .names? refactoringgg
 			end
+			print("submenu1")
+			tablePrint(submenu1)
 		else
-			--TODO make player choose a room TODO unless it doesn't require a room, like Dig TODO
-			-- print("pick a room:")
-			-- tablePrint(selectedActivity.candidateRoomIDs)
+			--make player choose a room, unless it doesn't require a room, like Dig
 			STATE = "select room"
 			submenu1 = {
 				label = "Select a room for this activity:",
@@ -179,46 +181,36 @@ function processActivityMainMenuInput(key)
 			for k,v in ipairs(mountain.rooms) do
 				submenu1[k] = v.name
 			end
+			print("submenu1")
+			tablePrint(submenu1)
 		end
-		
-		print("submenu1")
-		tablePrint(submenu1)
 	end
 end
 
 function processActivitySimpleSubmenuInput(key)
-	--submenu shit. kind of proof of concept for now
-		if submenu1[tonumber(key)] then -- yikes. TODO
-			if submenu1.activity.outside then
-				-- ping("assigning?")
-				assignUnitToExpedition(unassignedIDs[1], submenu1.activity.name, tonumber(key))
-			else
-				assignUnitToIndoorActivity(unassignedIDs[1], submenu1.activity.name, tonumber(key))
-			end
-			table.remove(unassignedIDs, 1)
-			submenu1 = {}
-			STATE = "main"
-			ping("back to main")
+	if submenu1[tonumber(key)] then -- yikes. TODO
+		if submenu1.activity.outside then
+			-- ping("assigning?")
+			assignUnitToExpedition(unassignedIDs[1], submenu1.activity.name, tonumber(key))
+		else
+			assignUnitToIndoorActivity(unassignedIDs[1], submenu1.activity.name, tonumber(key))
 		end
-	-- end
+		table.remove(unassignedIDs, 1)
+		submenu1 = {}
+		STATE = "main"
+	end
 end
 	
 function processActivityDebugInput(key)
 	--DEBUG shit
 	if key == "\\" then
-		print("\\ - all units without medals assigned to Idle")
-		-- tablePrint(unassignedIDs)
-		local i = 1
-		local num = #unassignedIDs
-		while i <= num do
-			if not roster[unassignedIDs[i]].bestMedal then
-				assignUnitTo(unassignedIDs[i], "Idle")
-				table.remove(unassignedIDs, i)
-				num = num - 1
-			else
-				i = i + 1
-			end
+		print("\\ - all unassigned units assigned to Dig")
+		local num = #unassignedIDs - 1
+		for i = 1, num do
+			assignUnitToOtherActivity(unassignedIDs[1], "Dig")
+			table.remove(unassignedIDs, 1)
 		end
+		calculateAssignmentRowCounts()
 	end
 	
 	if key == "[" then
@@ -247,6 +239,7 @@ function processActivityDebugInput(key)
 	end
 end
 
+---------------------------------------------------------------------------------------------------
 
 function assignUnitToExpedition(rosterIndex, activityName, areaID)
 	table.insert(areaAssignments[areaID], {rid = rosterIndex, aName = activityName})
@@ -274,6 +267,19 @@ function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)
 	})
 end
 
+function assignUnitToOtherActivity(rosterIndex, activityName)	
+	table.insert(otherAssignments[activityName], {rid = rosterIndex, aName = activityName}) --redundant 9_9 ...don't care right now but TODO
+
+	calculateAssignmentRowCounts()
+	
+	table.insert(assignmentUndoStack, {
+		f = "assignUnitToOtherActivity", 
+		activityName = activityName
+	})
+end
+
+---------------------------------------------------------------------------------------------------
+
 --you're making a lot of assumptions about where IDs will land in assignment tables. they're ALL simple stacks for now...
 --fortunately, i don't think it will be hard to make these functions smarter later if necessary
 function undoLastAssignment()
@@ -293,6 +299,9 @@ function undoLastAssignment()
 	elseif undoStep.f == "assignUnitToIndoorActivity" then
 		local undoneAssignment = table.remove(roomAssignments[undoStep.roomID])
 		table.insert(unassignedIDs, 1, undoneAssignment.rid)
+	elseif undoStep.f == "assignUnitToOtherActivity" then
+		local undoneAssignment = table.remove(otherAssignments[undoStep.activityName])
+		table.insert(unassignedIDs, 1, undoneAssignment.rid)
 	end
 	
 	--and recalc rows in case they need to shift
@@ -304,23 +313,32 @@ function redoLastUndoneAssignment()
 end
 
 --just tells different assignment sections where they should draw
+--this function is sloppy and, in fact, buggy. rewrite at some point, please. TODO
 function calculateAssignmentRowCounts()
-	--unassigned is always at 0 (for now)
+	--unassigned is always drawn at 1 (for now)
 	
 	--room assignments are below that
 	roomAssignments.drawAtY = (math.ceil(#unassignedIDs / 16) + 2) * rh
 	
 	--and expeditions are below rooms
 	areaAssignments.drawAtY = roomAssignments.drawAtY
-	local someIndoors = false
+	local someRows = 0
 
 	for k,room in ipairs(roomAssignments) do
 		if room[1] then
 			areaAssignments.drawAtY = areaAssignments.drawAtY + rh
-			someIndoors = true
+			someRows = someRows + 1
 		end
 	end
 	
-	--(add one more row if the indoor title will be drawn)
-	if someIndoors then areaAssignments.drawAtY = areaAssignments.drawAtY + rh end
+	--(add one more row if the Expeditions title will be drawn)
+	if someRows > 0 then 
+		areaAssignments.drawAtY = areaAssignments.drawAtY + rh 
+	end
+	
+	--Dig assignees are drawn next
+	-- someRows = false
+	if otherAssignments.Dig[1] then 
+		otherAssignments.Dig.drawAtY = areaAssignments.drawAtY + (someRows + 1) * rh
+	end
 end

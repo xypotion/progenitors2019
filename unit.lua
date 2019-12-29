@@ -233,7 +233,7 @@ function drawUnitIcon(u, xOffset, yOffset)
 end
 
 --takes a list of roster IDs, then draws them in a row starting at x,y; loops to new row every 16 units
-function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset, activityNames)
+function drawUnitIconsFromRIDListAt(ridList, xOffset, yOffset)
 	for k, rid in ipairs(ridList) do
 		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
 		local yPos = yOffset + math.floor((k - 1) / 16 + 1) * rh
@@ -248,8 +248,10 @@ end
 --the activity ID is for drawing an icon :)
 function drawUnitIconsFromAssignmentListAt(assignmentList, xOffset, yOffset)	
 	for k, assignment in ipairs(assignmentList) do
-		local xPos = xOffset + k * rh
-		local yPos = yOffset
+		-- local xPos = xOffset + k * rh
+		-- local yPos = yOffset
+		local xPos = xOffset + ((k - 1) % 16 + 1) * rh
+		local yPos = yOffset + math.floor((k - 1) / 16) * rh
 		
 		drawUnitIcon(roster[assignment.rid], xPos, yPos)
 				
