@@ -100,6 +100,7 @@ function assignmentsStart()
 	
 	--trying this to keep menu input+draw logic a little more organized
 	state = "main"
+	--other valid states: select room/area/mate/sort/product/structure, help/info, confirm assignments, etc
 end
 
 function assignmentsUpdate(dt)
@@ -107,16 +108,14 @@ function assignmentsUpdate(dt)
 end
 
 function assignmentsKeyPressed(key)
-	print(0, key)
 	--undo or cancel
 	if key == "backspace" then
-		print(1)
 		if state == "main" then
-			print(2)
 			undoLastAssignment()
 		elseif state == "select room" or state == "select area" then
 			submenu1 = {}
 			state = "main"
+		elseif state == "select mate" then
 		end
 	end
 end

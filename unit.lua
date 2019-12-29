@@ -1,5 +1,21 @@
 require "speciesData"
 
+nameBits = {
+	original = {
+		main = {"an", "be", "cin", "der", "e'o", "fe", "gla", "hia", "is", "ja", "kou", "len", "mae", 
+			"nor", "o'o", "pia", "qua", "res", "sey", "tui", "un", "ver", "wei", "x'ru", "yem", "zem"},
+		suffixes = {"aya", "bel", "cah", "dya", "em", "fi", "go", "hest", "in", "je'o", "kel", "lal", "mem", 
+			"nale", "onda", "ped", "qu", "ra", "sep", "tot", "uwo", "vay", "wa", "xi", "yaha", "zu"},
+		punctuator = "-"
+	},
+	new = {
+		main = {"ay", "bel", "cha", "da", "ex", "for", "gon", "haw", "ia", "jia", "kit", "lo", "mor",
+			"niz", "ot", "pa", "quin", "ro", "sha", "teo", "unu", "vu", "wil", "xa", "ya", "zes"},
+		suffixes = {},
+		punctuator = "'"
+	}
+}
+
 function initUnit(species, parent)
 	local u = {}
 	u.species = species
@@ -15,6 +31,7 @@ function initUnit(species, parent)
 	
 	if parent then
 		u.name = generateName(parent.name)
+		-- u.name = generateNameFromParentName(parent.name) --this is called inside generateName(). don't call it here.
 	else
 		u.name = generateName()
 	end
@@ -73,18 +90,16 @@ function generateName(pn)
 		return generateNameFromParentName(pn)
 	end
 	
-	local bits = {
-		"an", "be", "cin", "der", "e'o", "fe", "gla", "hia", "is", "ja", "kou", "len", "mae", 
-		"nor", "o'o", "pia", "qua", "res", "sey", "tui", "un", "ver", "wei", "x'ru", "yem", "zem"
-	}
+	-- local bits = nameBits.original
+	local bits = nameBits.new
 	local numbits = 26
 	
-	local n = bits[math.random(numbits)]
+	local n = bits.main[math.random(numbits)]
 	local i = 1
 	local j = 1
 	
 	while i > 3/4 and j <= 4 do
-		n = n..bits[math.random(numbits)]
+		n = n..bits.main[math.random(numbits)]
 	
 		i = math.random()
 		j = j + 1
@@ -92,17 +107,15 @@ function generateName(pn)
 	
 	n = firstToUpper(n)
 	
+	-- print(n)
 	return n
 end
 
 function generateNameFromParentName(pn)
-	local bits = {
-		"aya", "bel", "cah", "dya", "em", "fi", "go", "hest", "in", "je'o", "kel", "lal", "mem", 
-		"nale", "onda", "ped", "qu", "ra", "sep", "tot", "uwo", "vay", "wa", "xi", "yaha", "zu"
-	}
+	local bits = nameBits.original
 	local numbits = 26
 	
-	local suffix = bits[math.random(numbits)]
+	local suffix = bits.suffixes[math.random(numbits)]
 	
 	-- local n = pn:sub(3)
 	--get parent's name without the '-'
@@ -117,9 +130,10 @@ function generateNameFromParentName(pn)
 		n = t[1]
 	end
 				
-	n = n.."-"..suffix
+	n = n..bits.punctuator..suffix
 	n = firstToUpper(n)
 	
+	-- print(n)
 	return n
 end
 
