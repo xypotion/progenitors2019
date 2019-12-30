@@ -1,11 +1,17 @@
+--eventually indoor activities should be drawn in a model of the mountain, while expeditions are drawn in a separate "window" that can be paginated to... or something. graphiiiics
+
 function assignmentsDraw()
-	--draw current unit summary, nice and big
-	drawUnitSummary(roster[unassignedIDs[1]], 50, 50)
+	if unassignedIDs[1] then
+		--draw current unit summary, nice and big
+		drawUnitSummary(roster[unassignedIDs[1]], 50, 50)
+	end
 		
-	drawUnassignedUnits()
+	-- drawUnassignedUnits()
 	
 	if STATE == "main" then
 		drawActivitiesMenu()
+		
+		drawUnassignedUnits()
 		
 		drawRoomAndAreaAssignments()
 		
@@ -14,6 +20,12 @@ function assignmentsDraw()
 		drawActivitiesMenu()
 		drawLocationSubmenu()
 	elseif STATE == "select mate" then
+	elseif STATE == "all assigned" then
+		drawRoomAndAreaAssignments()
+		
+		drawOtherAssignments()
+		
+		drawAssignmentConfirmationPrompt()
 	elseif STATE == "something" then
 	end
 end
@@ -26,9 +38,11 @@ function drawUnassignedUnits()
 	if unassignedIDs[1] then
 		love.graphics.print("Unassigned", 600, rh * 1)
 		drawUnitIconsFromRIDListAt(unassignedIDs, 600, rh*1)
-	end
-		
-	love.graphics.print("Select activity for this unit this month:", rh, 5 * rh)
+
+		love.graphics.print("Select activity for this unit this month:", rh, 5 * rh)
+	else
+		love.graphics.print("All units assigned to duties.", rh, 5 * rh)
+	end		
 end
 
 function drawActivitiesMenu()
@@ -134,3 +148,20 @@ function drawKeyboardKey(text, x, y)
 	white()
 end
 
+function drawLongKeyBoardKey(text, x, y)
+	-- if not text then text = "enter" end
+	
+	setColor(0.75,0.75,0.75)
+	love.graphics.rectangle("fill", x + keyRectOffset, y + keyRectOffset, keyRectSize * 3, keyRectSize)
+	
+	setColor(0,0,0)
+	love.graphics.printf(" "..text, f2, x - keyRectOffset, y + keyRectOffset, keyRectSize * 3, "center")
+	
+	white()
+end
+
+
+function drawAssignmentConfirmationPrompt()
+	love.graphics.print("All units assigned to activities for this month.\nPress Enter to confirm.", 50, 50)
+	drawLongKeyBoardKey("delete", 50, 50 + rh * 2)
+end

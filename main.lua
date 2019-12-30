@@ -35,11 +35,12 @@ function love.load()
 
 	--who's your progenitor?
 	roster = {}
-	-- roster[1] = initUnit("Ant")
+	-- roster[1] = initUnit("Rabbit")
+	-- roster[1].name = "Molotov Cottontail" --for alex.
 	-- roster[1] = initUnit("Elephant")
 	roster[1] = initUnit(randomSpecies())
 		
-	for i = 2, 130 do 
+	for i = 2, 100 do 
 		-- roster[i] = initUnit("Snake")
 		-- roster[i] = initUnit("Elephant")
 		roster[i] = initUnit(randomSpecies(), roster[i-1])

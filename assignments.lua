@@ -110,8 +110,10 @@ end
 function assignmentsKeyPressed(key)
 	--undo or cancel
 	if key == "backspace" then
-		if STATE == "main" then
+		if STATE == "main" or STATE == "all assigned" then
 			undoLastAssignment()
+			
+			calculateAssignmentRowCounts()
 		elseif STATE == "select room" or STATE == "select area" then
 			submenu1 = {}
 			STATE = "main"
@@ -153,7 +155,6 @@ function processActivityMainMenuInput(key)
 	if selectedActivity then
 		if selectedActivity.name == "Dig" then --sloppy but whatever. a lot of this is. maybe clean up later TODO
 			assignUnitToOtherActivity(unassignedIDs[1], selectedActivity.name)
-			table.remove(unassignedIDs, 1)
 		elseif selectedActivity.outside then
 			STATE = "select area"
 			submenu1 = {
@@ -195,7 +196,7 @@ function processActivitySimpleSubmenuInput(key)
 		else
 			assignUnitToIndoorActivity(unassignedIDs[1], submenu1.activity.name, tonumber(key))
 		end
-		table.remove(unassignedIDs, 1)
+		-- table.remove(unassignedIDs, 1)
 		submenu1 = {}
 		STATE = "main"
 	end
@@ -205,12 +206,43 @@ function processActivityDebugInput(key)
 	--DEBUG shit
 	if key == "\\" then
 		print("\\ - all unassigned units assigned to Dig")
-		local num = #unassignedIDs - 1
+		local num = #unassignedIDs - 2
 		for i = 1, num do
 			assignUnitToOtherActivity(unassignedIDs[1], "Dig")
-			table.remove(unassignedIDs, 1)
+			-- table.remove(unassignedIDs, 1)
 		end
+		
+		-- undoLastAssignment()
+		
 		calculateAssignmentRowCounts()
+	end
+	
+	if key == "^" then
+		print("^ - lighten all unit colors")
+		for k,u in pairs(roster) do
+			u.color[1] = 1 - ((1 - u.color[1]) / 1.5)
+			u.color[2] = 1 - ((1 - u.color[2]) / 1.5)
+			u.color[3] = 1 - ((1 - u.color[3]) / 1.5)
+		end
+	end
+	
+	if key == "%" then
+		print("% - darken all unit colors")
+		for k,u in pairs(roster) do
+			u.color[1] = u.color[1] * 0.5
+			u.color[2] = u.color[2] * 0.5
+			u.color[3] = u.color[3] * 0.5
+		end
+	end
+	
+	if key == "&" then
+		print("& - rotate all unit colors")
+		for k,u in pairs(roster) do
+			local temp = u.color[1]
+			u.color[1] = u.color[2]
+			u.color[2] = u.color[3]
+			u.color[3] = temp
+		end
 	end
 	
 	if key == "[" then
@@ -254,6 +286,8 @@ function assignUnitToExpedition(rosterIndex, activityName, areaID)
 		areaID = areaID,
 		-- assignmentPos = table.getn(areaAssignments[areaID])  --also not necessary
 	})
+	
+	vacateUnassignedIDs()
 end
 
 function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)	
@@ -265,6 +299,8 @@ function assignUnitToIndoorActivity(rosterIndex, activityName, roomID)
 		f = "assignUnitToIndoorActivity", 
 		roomID = roomID,
 	})
+	
+	vacateUnassignedIDs()
 end
 
 function assignUnitToOtherActivity(rosterIndex, activityName)	
@@ -276,6 +312,16 @@ function assignUnitToOtherActivity(rosterIndex, activityName)
 		f = "assignUnitToOtherActivity", 
 		activityName = activityName
 	})
+	
+	vacateUnassignedIDs()
+end
+
+function vacateUnassignedIDs()
+	table.remove(unassignedIDs, 1)
+	
+	if not unassignedIDs[1] then
+		STATE = "all assigned"
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -306,11 +352,19 @@ function undoLastAssignment()
 	
 	--and recalc rows in case they need to shift
 	calculateAssignmentRowCounts()
+	
+	--not sure if this is necessary outside of debugging, but allow state reset if you were previously at "all assigned"
+	if unassignedIDs[1] then
+		STATE = "main"
+		ping()
+	end
 end
 
 function redoLastUndoneAssignment()
 	--TODO
 end
+
+---------------------------------------------------------------------------------------------------
 
 --just tells different assignment sections where they should draw
 --this function is sloppy and, in fact, buggy. rewrite at some point, please. TODO
@@ -345,6 +399,7 @@ function rowsNeededForLocationBasedAssignmentSection(assignmentsList)
 	return n
 end
 
+--there's still a bug here... TODO when dumping all but one unassigned units into Dig, this miscalculates the rows
 function rowsNeededForNONLocationBasedAssignmentSection(assignmentsList)
 	--count members in grid
 	local n = math.ceil((table.getn(assignmentsList) - 1) / 16)

@@ -72,6 +72,7 @@ function unitColorByGenome(g)
 	end
 	
 	-- tablePrint(counts)
+	-- local counts = {R = 20, G = 19, B = 13} --produces a pretty gold color
 	
 	local min, mult = -0.666, 2.66 --very good
 	-- local min, mult = -0.666, 2.75 --also very good
