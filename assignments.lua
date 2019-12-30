@@ -314,31 +314,43 @@ end
 
 --just tells different assignment sections where they should draw
 --this function is sloppy and, in fact, buggy. rewrite at some point, please. TODO
-function calculateAssignmentRowCounts()
-	--unassigned is always drawn at 1 (for now)
+function calculateAssignmentRowCounts()	
+	local uRows = rowsNeededForNONLocationBasedAssignmentSection(unassignedIDs)
+	local rRows = rowsNeededForLocationBasedAssignmentSection(roomAssignments)
+	local aRows = rowsNeededForLocationBasedAssignmentSection(areaAssignments)
+	local dRows = rowsNeededForNONLocationBasedAssignmentSection(otherAssignments.Dig)
 	
-	--room assignments are below that
-	roomAssignments.drawAtY = (math.ceil(#unassignedIDs / 16) + 2) * rh
+	--unassignedIDs.drawAtY is not really a thing. just hard-coded at 1 for now
 	
-	--and expeditions are below rooms
-	areaAssignments.drawAtY = roomAssignments.drawAtY
-	local someRows = 0
+	roomAssignments.drawAtY = (uRows + 1) * rh
+	
+	areaAssignments.drawAtY = (uRows + rRows + 1) * rh
+	
+	otherAssignments.Dig.drawAtY = (uRows + rRows + aRows + 1) * rh
+end
 
-	for k,room in ipairs(roomAssignments) do
-		if room[1] then
-			areaAssignments.drawAtY = areaAssignments.drawAtY + rh
-			someRows = someRows + 1
+function rowsNeededForLocationBasedAssignmentSection(assignmentsList)
+	local n = 0
+	
+	--count rows (each is a room or area)
+	for k,v in ipairs(assignmentsList) do
+		if v[1] then
+			n = n + 1
 		end
 	end
 	
-	--(add one more row if the Expeditions title will be drawn)
-	if someRows > 0 then 
-		areaAssignments.drawAtY = areaAssignments.drawAtY + rh 
-	end
+	--for a title
+	if n > 0 then n = n + 1 end
 	
-	--Dig assignees are drawn next
-	-- someRows = false
-	if otherAssignments.Dig[1] then 
-		otherAssignments.Dig.drawAtY = areaAssignments.drawAtY + (someRows + 1) * rh
-	end
+	return n
+end
+
+function rowsNeededForNONLocationBasedAssignmentSection(assignmentsList)
+	--count members in grid
+	local n = math.ceil((table.getn(assignmentsList) - 1) / 16)
+	
+	--for a title
+	if n > 0 then n = n + 1 end
+	
+	return n
 end
