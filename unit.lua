@@ -19,15 +19,6 @@ nameBits = {
 function initUnit(species, parent)
 	local u = {}
 	u.species = species
-
-	
-	u.maxLevel = math.random(36)
-	u.level = 36 --DEBUG! math.random(u.maxLevel)
-	
-	u.stats = {}--deepClone(speciesData[species].stats)
-	for k,v in pairs(speciesData[species].stats) do
-		u.stats[k] = v * speciesBaseStatMultiplier * u.level
-	end
 	
 	if parent then
 		u.name = generateName(parent.name)
@@ -42,7 +33,14 @@ function initUnit(species, parent)
 		u.genome = initGenome()
 	end
 	
-	tallyStatsFromGenome(u)
+	-- find stat growth rates
+	assignLifespanAndStatGrowthRatesFromGenomeAndSpecies(u)
+
+	u.maxLevel = math.random(36)
+	-- u.level = 36 --DEBUG! math.random(u.maxLevel)
+	u.level = 3 --DEBUG!
+	
+	setUnitStatsByLevel(u)
 	
 	u.color = unitColorByGenome(u.genome)
 	
@@ -138,30 +136,63 @@ function generateNameFromParentName(pn)
 	return n
 end
 
-function tallyStatsFromGenome(u)
-	local previous = u.genome[54]
-	local incrementor = 1/3 * u.level
+--let's try this again, a better way
+function assignLifespanAndStatGrowthRatesFromGenomeAndSpecies(unit)
+	local rates = {maxHP = 0, int = 0, str = 0, agl = 0}
 	
-	--tally them up
-	for i,v in ipairs(u.genome) do
-		if v == previous then
-			if v == "R" then
-				u.stats.int = u.stats.int + incrementor
-			elseif v == "G" then
-				u.stats.str = u.stats.str + incrementor
-			elseif v == "B" then
-				u.stats.agl = u.stats.agl + incrementor
-			end
-		else
-			u.stats.maxHP = u.stats.maxHP + incrementor
-		end
-		
-		previous = v
+	for alleleID = 1,54,6 do
+		--there's definitely a more elegant way to do this, but screw it
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID], unit.genome[alleleID+1], rates)		
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID+1], unit.genome[alleleID+2], rates)		
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID+2], unit.genome[alleleID+3], rates)		
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID+3], unit.genome[alleleID+4], rates)		
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID+4], unit.genome[alleleID+5], rates)		
+		incrementGrowthRateBasedOnAlleleComparison(unit.genome[alleleID+5], unit.genome[alleleID], rates)		
 	end
 	
-	--and round them off
-	for k,v in pairs(u.stats) do
-		u.stats[k] = round(v)
+	--maxHP growth rate determines adult lifespan, i.e. months until they become "elderly"
+	unit.adultLifespan = speciesData[unit.species].stats.maxHP + rates.maxHP
+	
+	--other stats' growth rates determine how long they stay "elderly" before they die. 
+	--the value used is based on how many wounds they sustain, which can happen at any time. this table tracks all possibilities
+	unit.elderLifespans = {
+		speciesData[unit.species].stats.int + rates.int,
+		speciesData[unit.species].stats.str + rates.str,
+		speciesData[unit.species].stats.agl + rates.agl
+	}
+	table.sort(unit.elderLifespans, function(a,b) return (a > b) end)
+	
+	--actual stat growth rates are weighted in favor of the species'
+	unit.statGrowthRates = {}
+	
+	for statName,genomeValue in pairs(rates) do
+		unit.statGrowthRates[statName] = speciesData[unit.species].stats[statName] + genomeValue / 3
+	end
+end
+
+function incrementGrowthRateBasedOnAlleleComparison(a,b,rates)
+	local stat = "error"
+	
+	if a == b then
+		if a == "R" then
+			stat = "int"
+		elseif a == "G" then
+			stat = "str"
+		elseif a == "B" then
+			stat = "agl"
+		end
+	else
+		stat = "maxHP"
+	end
+	
+	rates[stat] = rates[stat] + 1
+end
+
+function setUnitStatsByLevel(unit)
+	unit.stats = {}
+	
+	for k,v in pairs(unit.statGrowthRates) do
+		unit.stats[k] = round(v * unit.level)
 	end
 end
 
@@ -281,4 +312,11 @@ function drawGenome(g, xOffset, yOffset)
 		
 		love.graphics.draw(triangleMesh, x, y, r)
 	end
+end
+
+---------------------------------------------------------------------------------------------------
+
+function levelUpUnit(rid)
+	
+	-- roster[rid].
 end

@@ -46,7 +46,7 @@ function love.load()
 		roster[i] = initUnit(randomSpecies(), roster[i-1])
 	end
 	-- tablePrint(roster)
-	
+		
 	-- roster[3] = deepClone(roster[1])--debug
 	-- roster[5] = deepClone(roster[1])--debug
 	
@@ -67,6 +67,10 @@ function love.load()
 	glow = 1
 	
 	assignmentsStart()
+	
+	--debug
+	assignLifespanAndStatGrowthRatesFromGenomeAndSpecies(roster[1])
+	-- tp(roster[1])
 end
 
 function love.update(dt)

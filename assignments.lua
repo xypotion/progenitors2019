@@ -269,6 +269,12 @@ function processActivityDebugInput(key)
 		print("/ - start fresh")
 		love.load()
 	end
+	
+	if key == "*" then
+		print("* - level up current unit")
+		roster[unassignedIDs[1]].level = roster[unassignedIDs[1]].level + 1
+		setUnitStatsByLevel(roster[unassignedIDs[1]])
+	end
 end
 
 ---------------------------------------------------------------------------------------------------

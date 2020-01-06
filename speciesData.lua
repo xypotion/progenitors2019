@@ -13,20 +13,20 @@ end
 
 speciesData = {
 	Snake = {
-		stats = {maxHP = 2, int = 2, str = 3, agl = 3},
+		stats = {maxHP = 2, int = 3, str = 3, agl = 2}, rs = 3,
 		eyes = {6,4}
 	},
 	Vulture = {
 		stats = {maxHP = 3, int = 2, str = 2, agl = 3},
 	},
 	Ant = {
-		stats = {maxHP = 2, int = 3, str = 3, agl = 2},
+		stats = {maxHP = 1, int = 2, str = 4, agl = 3},
 	},
 	Bee = {
 		stats = {maxHP = 1, int = 3, str = 3, agl = 3},
 	},
 	Elephant = {
-		stats = {maxHP = 4, int = 3, str = 2, agl = 1},
+		stats = {maxHP = 4, int = 3, str = 2, agl = 1}, rw = 1,
 	},
 	Falcon = {
 		stats = {maxHP = 1, int = 2, str = 3, agl = 4},
@@ -44,7 +44,7 @@ speciesData = {
 		stats = {maxHP = 3, int = 2, str = 4, agl = 1},
 	},
 	Chameleon = {
-		stats = {maxHP = 1, int = 4, str = 2, agl = 3},
+		stats = {maxHP = 2, int = 4, str = 3, agl = 1},
 	},
 	Octopus = {
 		stats = {maxHP = 2, int = 4, str = 2, agl = 2},
@@ -56,13 +56,13 @@ speciesData = {
 		stats = {maxHP = 3, int = 2, str = 3, agl = 2}, rs = 14,
 	},
 	Goat = {
-		stats = {maxHP = 3, int = 1, str = 3, agl = 3},
+		stats = {maxHP = 3, int = 1, str = 3, agl = 3}, rs = 15,
 	},
 	Moose = {
-		stats = {maxHP = 4, int = 2, str = 3, agl = 1},
+		stats = {maxHP = 3, int = 3, str = 3, agl = 1},
 	},
 	Owl = {
-		stats = {maxHP = 1, int = 4, str = 1, agl = 4},
+		stats = {maxHP = 1, int = 4, str = 2, agl = 3},
 	},
 	Cat = {
 		stats = {maxHP = 2, int = 3, str = 2, agl = 3},
@@ -75,6 +75,15 @@ speciesData = {
 	},
 	Chicken = {
 		stats = {maxHP = 4, int = 1, str = 1, agl = 4},
+	},
+	Walrus = {
+		stats = {maxHP = 4, int = 2, str = 3, agl = 1},
+	},
+	Dolphin = {
+		stats = {maxHP = 2, int = 4, str = 1, agl = 3},
+	},
+	Bat = {
+		stats = {maxHP = 1, int = 3, str = 2, agl = 4},
 	},
 }
 
@@ -98,9 +107,9 @@ RS[14] = {name = "Water Warrior", desc = "Can gather and evade danger easily in 
 RS[15] = {name = "Cliff-climber", desc = "Is comfortable in mountainous terrain."}
 RS[16] = {name = "Loner", desc = "Gets more done when working alone."}
 RS[17] = {name = "Silent Hunter", desc = "Does not draw attention from hostile natives."}
-RS[18] = {name = "Copycat", desc = "Can copy combat skills from nearby allies."} --like all of them? is that broken?
+RS[18] = {name = "Copycat", desc = "Can copy skills seen in battle."} --only [floor(sqrt(lvl))] times per battle
 RS[19] = {name = "Trainable", desc = "Can learn additional racial skills from teachers."} --or just benefits more from training?
 RS[20] = {name = "Vespertine", desc = "Feeds on moonlight."} --only when lunar skills are used, or just 1/nutrition per month, or both?
-RS[21] = {name = "Delicious", desc = "Makes for a good meal."} --leaves meat equal to sqrt(lvl) upon death
+RS[21] = {name = "Simply Delicious", desc = "Makes for a good meal."} --leaves [sqrt(lvl)] meat upon death... or should chickens lay eggs?
 RS[22] = {name = "", desc = ""}
 RS[23] = {name = "", desc = ""}
