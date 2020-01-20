@@ -102,6 +102,8 @@ end
 
 function love.textinput(t)
 	_G[phase.."TextInput"](t)
+	
+	print(t, STATE) --DEBUG
 end
 
 function love.keypressed(key)

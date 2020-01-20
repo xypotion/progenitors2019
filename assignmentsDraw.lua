@@ -41,7 +41,7 @@ function drawUnassignedUnits()
 
 		love.graphics.print("Select activity for this unit this month:", rh, 5 * rh)
 	else
-		love.graphics.print("All units assigned to duties.", rh, 5 * rh)
+		love.graphics.print("All units assigned to duties. You should never see this message...?", rh, 5 * rh)
 	end		
 end
 

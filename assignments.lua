@@ -198,7 +198,10 @@ function processActivitySimpleSubmenuInput(key)
 		end
 		-- table.remove(unassignedIDs, 1)
 		submenu1 = {}
-		STATE = "main"
+		--hacky, but necessary. state management is not clean :/ TODO
+		if STATE ~= "all assigned" then
+			STATE = "main"
+		end
 	end
 end
 	
